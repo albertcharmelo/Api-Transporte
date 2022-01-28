@@ -47,7 +47,10 @@ return [
             'driver' => 'local',
             'root' => storage_path('app'),
         ],
-
+        'qr' => [
+            'driver' => 'local',
+            'root' => storage_path('app/qr'),
+        ],
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
@@ -63,6 +66,13 @@ return [
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
         ],
+        'google'=>[
+            'driver'=>'google',
+            'clientId'=> env("GOOGLE_CLIENT_ID"),
+            'clientSecret'=> env("GOOGLE_CLIENT_SECRET"),
+            'refreshToken'=> env("GOOGLE_DRIVE_REFRESH_TOKEN"),
+            'folderId'=> env("GOOGLE_DRIVE_FOLDER_ID"),
+        ]
 
     ],
 
@@ -79,6 +89,7 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
+        public_path('qr_api_transporte') => storage_path('app/qr'),
     ],
 
 ];

@@ -2,6 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -24,9 +28,15 @@ Route::group(['prefix' => 'auth'],function () {
     Route::post('signup', 'AuthController@signUp');
 
     Route::group(['middleware' => 'auth:api'], function () {
-        Route::get('logout', 'AuthController@logout');
-        Route::get('user', 'AuthController@user');
+        Route::post('logout', 'AuthController@logout');
+        Route::post('user', 'AuthController@user');
+        Route::get('createQr','WalletController@exampleqr');
     });
 });
 
 
+Route::group(['prefix'=>'walltet','middleware' => 'auth:api'],function () {
+    Route::post('getQr','WalletController@getQr');
+    Route::post('generateQr','WalletController@generateQr');
+    Route::post('pay','WalletController@cobrar');
+});

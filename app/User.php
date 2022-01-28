@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'full_name', 'email', 'password','gender','id_card','profile_image','type_id_card','idShow'
     ];
 
     /**
@@ -38,4 +38,34 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+
+    /**
+     * Get the qrCode associated with the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function qrCode()
+    {
+        return $this->hasOne(QrCodeUser::class,'users_id', 'id');
+    }
+
+     /**
+     * Get the qrCode associated with the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function wallet()
+    {
+        return $this->hasOne(UserWallet::class,'user_id', 'id');
+    }
+    /**
+     * Get the type_user that owns the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function type_user()
+    {
+        return $this->belongsTo(UserPermission::class, 'type_user','id');
+    }
 }

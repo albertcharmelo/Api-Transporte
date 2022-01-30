@@ -46,7 +46,7 @@ class AuthController extends Controller
             $usuarioRegistrado = User::find($user->id);
             $qr_name = hash('sha256',now(),false);
             $qr_registered = QrCodeUser::create([
-                'qr_image'=>"qr_api_transporte$qr_name.png",
+                'qr_image'=>"qr_api_transporte/$qr_name.png",
                 'users_id'=>$usuarioRegistrado->id,
                 'qr_name'=>$qr_name,
             ]);

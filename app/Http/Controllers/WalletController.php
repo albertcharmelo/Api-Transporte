@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CreditTransaction;
 use App\User;
 use App\QrCodeUser;
 use App\UserWallet;
@@ -33,6 +34,7 @@ class WalletController extends Controller
         try {
            //Eliminamos el Qr existente 
            $qr = QrCodeUser::where('users_id',Auth::user()->id)->get()->first();
+           Storage::disk('qr')->delete($qr->qr_name .".png");
            $qr->delete();
            Storage::disk('s3')->delete('path/file.jpg');
            //Creamos un nuevo Qr
@@ -62,11 +64,14 @@ class WalletController extends Controller
 
 
     static public function cobrar(Request $request){
+        
+        
+        
         $data_from_qr =QrCodeUser::where('qr_idShow',$request->qr_idShow)
-                            ->with('user')
-                            ->get()
-                            ->first();
-
+                                ->with('user')
+                                ->get()
+                                ->first();
+        
         $client_wallet = UserWallet::where('user_id',$data_from_qr->user->id)
                                 ->get()
                                 ->first();
@@ -74,28 +79,33 @@ class WalletController extends Controller
         $driver_wallet = UserWallet::where('user_id',Auth::user()->id)
                                     ->get()
                                     ->first();
+        $amount = floatval($request->amount);
+     try {
+        if ($client_wallet->creditos >= $amount) {
+            $client_wallet->creditos = floatval($client_wallet->creditos) - $amount;
+            $driver_wallet->creditos = floatval($driver_wallet->creditos) + $amount;
+            $client_wallet->save();
+            $driver_wallet->save();
+            $transaccion = event(new CreditTransaction($client_wallet->user_id,$driver_wallet->user_id,$amount,$request->transaction));
+            return response()->json([
+                'message'=> 'Transacción Realizada',
+                'newDriverBalance'=>$client_wallet->creditos,
+                'newClientBalance'=> $client_wallet->creditos,
 
-        try {
-            if ($client_wallet->creditos >= $request->amount) {
-                $client_wallet->creditos = $client_wallet->creditos - $request->amount;
-                $driver_wallet->creditos = $driver_wallet->creditos + $request->amount;
+            ],200);
+        }else{
+            return response()->json([
+                'message'=> 'El cliente no posee el saldo suficiente'
+            ],200);
+        }
+     } catch (\Throwable $th) {
+         return response()->json([
+             'message'=> 'Error en al efectuar la transaccion',
 
-                $client_wallet->save();
-                $driver_wallet->save();
-
-
-
-            }else{
-                return response()->json([
-                    'message'=> 'El cliente no posee el saldo suficiente'
-                ],200);
-            }
-
-
-
-        } catch (\Throwable $th) {
-            //throw $th;
-        }                                    
+         ],400);
+     }
+           
+                                       
 
 
     }

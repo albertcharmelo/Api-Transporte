@@ -59,10 +59,13 @@ class AuthController extends Controller
                 'error'=>$th,
             ], 400);
         }
-
+        $tokenResult = $user->createToken('Personal Access Token');
+        $token = $tokenResult->token;
+        $token->save();
 
         return response()->json([
             'message' => 'Usuario creado satisfactoriamente',
+            'access_token' => $tokenResult->accessToken,
         ], 201);
     }
     

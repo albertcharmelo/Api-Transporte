@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\CreditTransaction;
 use App\User;
 use App\QrCodeUser;
+use App\UserTransaction;
 use App\UserWallet;
 use Google\Service\ShoppingContent\Amount;
 use Illuminate\Http\Request;
@@ -104,12 +105,65 @@ class WalletController extends Controller
 
          ],400);
      }
-           
-                                       
+    }
 
+
+    public static function recargar (Request $request){
+        $user = Auth::user();
+        
+        if($user && $request->date && $request->reference   && $request->bank){
+            
+            
+            $user->wallet->creditos =  $user->wallet->creditos + 10;
+            $user->wallet->save();
+            return response()->json([
+                'message' => 'Recarga de creditos realizada',
+                'userBalance'=>$user->wallet->creditos
+            ], 200);
+        }
 
     }
     
+    public function transactions(Request $request){
+        $user = Auth::user();
+        
+        $transaccion_unfilter = UserTransaction::where('client_id',$user->id)
+                                                ->orWhere('driver_id',$user->id)->get();
+        
+        if ($user->type_user == '1') {
+            return response()->json([
+                'message' => 'Transacciones enviadas',
+                'user_id'=>Auth::user()->id,
+                'transactions'=>$transaccion_unfilter
+            ],200);
+        }elseif($user->type_user == '2'){
+            $transaccion_filtered = [];
+            foreach ($transaccion_unfilter as $key => $transaccion) {
+                if ($transaccion->driver_id == Auth::user()->id) {
+                    switch ($transaccion->transaction) {
+                        case 'DISCOUNT':
+                            $transaccion->transaction = 'ADD';
+                            
+                            array_push($transaccion_filtered,$transaccion);
+                            break; 
+                        default:
+                            array_push($transaccion_filtered,$transaccion);
+                            break;
+                    }
+                }else {
+                    array_push($transaccion_filtered,$transaccion);
+                }
+            }
+
+            return response()->json([
+                'message' => 'Transacciones enviadas',
+                'user_id'=>Auth::user()->id,
+                'transactions'=>$transaccion_filtered
+            ],200);
+        }
+        
+
+    }
     
 
 }

@@ -39,4 +39,6 @@ Route::group(['prefix'=>'walltet','middleware' => 'auth:api'],function () {
     Route::post('getQr','WalletController@getQr');
     Route::post('generateQr','WalletController@generateQr');
     Route::post('pay','WalletController@cobrar');
+    Route::post('recharge', 'WalletController@recargar');
+    Route::post('transactions', 'WalletController@transactions');
 });

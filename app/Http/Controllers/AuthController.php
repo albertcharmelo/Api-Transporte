@@ -124,6 +124,7 @@ class AuthController extends Controller
         ->with('qrCode')
         ->with('type_user')
         ->with('wallet')
+        ->with('location')
         ->get();
         return response()->json([
             'user'=>$usuario

@@ -68,4 +68,24 @@ class User extends Authenticatable
     {
         return $this->belongsTo(UserPermission::class, 'type_user','id');
     }
+
+    /**
+     * Get the location associated with the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function location()
+    {
+        return $this->hasOne(UserLocation::class, 'user_id', 'id');
+    }
+
+    /**
+     * Get the lineaTransporte that owns the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function lineaTransporte()
+    {
+        return $this->belongsTo(UserLineaTransporte::class, 'lineaTransporte_id', 'id');
+    }
 }

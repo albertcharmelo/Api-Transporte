@@ -31,6 +31,9 @@ Route::group(['prefix' => 'auth'],function () {
         Route::post('logout', 'AuthController@logout');
         Route::post('user', 'AuthController@user');
         Route::get('createQr','WalletController@exampleqr');
+        Route::post('updateLocation','UserlocationController@updateLocation');
+        Route::post('getLocation','UserLocationController@getLocation');
+
     });
 });
 

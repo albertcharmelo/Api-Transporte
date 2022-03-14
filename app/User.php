@@ -20,6 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'full_name', 'email', 'password','gender','id_card','profile_image','type_id_card','idShow'
     ];
+    protected $with = ['location'];
 
     /**
      * The attributes that should be hidden for arrays.

@@ -20,20 +20,22 @@ class CreditTransaction
     public $amount;
     public $transaction;
     public $invoice;
+    public $tickets_amount;
  
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($client, $driver,$amount,$transaction = 'ADD',$otherUser = null)
+    public function __construct($client, $driver,$amount,$transaction = 'ADD',$tickets_amount,$otherUser = null)
     {
         $this->invoice = substr(strtotime(now()),3) . rand(10000,99999);
         $this->client= $client;
         $this->driver = $driver;
         $this->otherUser = $otherUser;
         $this->amount = $amount;
-        $this->transaction = $transaction;    
+        $this->transaction = $transaction;
+        $this->tickets_amount = $tickets_amount;    
     }
 
 

@@ -36,6 +36,7 @@ class TransactionDone
             'amount'=> $event->amount,
             'transaction' => $event->transaction,
             'invoice'=>$event->invoice,
+            'tickets_amount'=>$event->tickets_amount,
         ]);
 
     }

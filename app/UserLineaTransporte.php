@@ -8,7 +8,7 @@ class UserLineaTransporte extends Model
 {
     protected $table = "linea_transporte";
     protected $guarded = [];
-
+    protected $with = ['tarifas:id,tarifa,linea_id', 'users'];
 
     /**
      * Get all of the tarifas for the UserLineaTransporte

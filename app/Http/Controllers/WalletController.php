@@ -108,6 +108,28 @@ class WalletController extends Controller
      }
     }
 
+    public static function refund(Request $request){
+        $transaccion = UserTransaction::findOrFail($request->id)->whereBetween('created_at',[now()->subHour(24),now()])->get()->first();
+        if ($transaccion) {
+            $refundTransaccion =  UserTransaction::create([
+                'driver_id'=> $transaccion->driver,
+                'client_id'=> $transaccion->client,
+                'amount'=> $transaccion->amount,
+                'transaction' => 'RETURN',
+                'invoice'=>substr(strtotime(now()),3) . rand(10000,99999),
+                'tickets_amount'=>$transaccion->tickets_amount,
+            ]);
+            return response()->json([
+                'message'=> 'Reembolso Exitoso',
+            ], 200);
+
+        }else {
+            return response()->json([
+                'message'=> 'El tiempo de reembolso ha exedido los 24hrs',
+            ], 400);
+        }   
+    }
+
 
     public static function recargar (Request $request){
         $user = Auth::user();

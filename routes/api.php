@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Intervention\Image\Facades\Image;
@@ -39,6 +40,8 @@ Route::group(['prefix'=>'walltet','middleware' => 'auth:api'],function () {
     Route::post('pay','WalletController@cobrar');
     Route::post('recharge', 'WalletController@recargar');
     Route::post('transactions', 'WalletController@transactions');
+    Route::post('refund','WalletController@refund');
+
 });
 
 /***************************/

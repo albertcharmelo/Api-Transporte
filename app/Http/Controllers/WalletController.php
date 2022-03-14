@@ -87,23 +87,24 @@ class WalletController extends Controller
             $driver_wallet->creditos = floatval($driver_wallet->creditos) + $amount;
             $client_wallet->save();
             $driver_wallet->save();
-            $transaccion = event(new CreditTransaction($client_wallet->user_id,$driver_wallet->user_id,$amount,$request->transaction));
+            $transaccion = event(new CreditTransaction($client_wallet->user_id,$driver_wallet->user_id,$amount,$request->transaction,$request->tickets_amount));
             return response()->json([
                 'message'=> 'Transacción Realizada',
                 'newDriverBalance'=>$client_wallet->creditos,
                 'newClientBalance'=> $client_wallet->creditos,
+                'tickets_amount'=> $request->tickets_amount
 
             ],200);
         }else{
             return response()->json([
                 'message'=> 'El cliente no posee el saldo suficiente'
-            ],200);
+            ],401);
         }
      } catch (\Throwable $th) {
          return response()->json([
              'message'=> 'Error en al efectuar la transaccion',
 
-         ],400);
+         ],401);
      }
     }
 
@@ -125,43 +126,21 @@ class WalletController extends Controller
     }
     
     public function transactions(Request $request){
+        
         $user = Auth::user();
         
         $transaccion_unfilter = UserTransaction::where('client_id',$user->id)
-                                                ->orWhere('driver_id',$user->id)->get();
+                                                ->orWhere('driver_id',$user->id)->paginate(10);
         
-        if ($user->type_user == '1') {
-            return response()->json([
-                'message' => 'Transacciones enviadas',
-                'user_id'=>Auth::user()->id,
-                'transactions'=>$transaccion_unfilter
-            ],200);
-        }elseif($user->type_user == '2'){
-            $transaccion_filtered = [];
-            foreach ($transaccion_unfilter as $key => $transaccion) {
-                if ($transaccion->driver_id == Auth::user()->id) {
-                    switch ($transaccion->transaction) {
-                        case 'DISCOUNT':
-                            $transaccion->transaction = 'ADD';
-                            
-                            array_push($transaccion_filtered,$transaccion);
-                            break; 
-                        default:
-                            array_push($transaccion_filtered,$transaccion);
-                            break;
-                    }
-                }else {
-                    array_push($transaccion_filtered,$transaccion);
-                }
-            }
 
-            return response()->json([
-                'message' => 'Transacciones enviadas',
-                'user_id'=>Auth::user()->id,
-                'transactions'=>$transaccion_filtered
-            ],200);
-        }
-        
+        $user_type= Auth::user()->type_user == 2 ? 'CONDUCTOR' : 'CLIENTE';
+      
+        return response()->json([
+            'message' => 'Transacciones enviadas',
+            'user_id'=>Auth::user()->id,
+            'user_type' =>$user_type,
+            'transactions'=>$transaccion_unfilter
+        ],200);
 
     }
     

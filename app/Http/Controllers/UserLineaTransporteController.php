@@ -19,7 +19,11 @@ class UserLineaTransporteController extends Controller
 
 
     public function getBusCollection(Request $request){
-        $buslines = UserLineaTransporte::where('id',$request->busLineId)->get()->first();
+        $buslines = UserLineaTransporte::where('id',$request->busLineId)
+        ->with(['users',function($query){
+            $query->location()->where('driving',true);
+        }])                
+        ->get()->first();
         
         return response()->json([
             'message'=>'Buses obtenidos exitosamente',

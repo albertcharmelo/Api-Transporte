@@ -112,15 +112,28 @@ class WalletController extends Controller
         $transaccion = UserTransaction::findOrFail($request->id)->whereBetween('created_at',[now()->subHour(24),now()])->get()->first();
         if ($transaccion) {
             $refundTransaccion =  UserTransaction::create([
-                'driver_id'=> $transaccion->driver,
-                'client_id'=> $transaccion->client,
+                'driver_id'=> $transaccion->driver_id,
+                'client_id'=> $transaccion->client_id,
                 'amount'=> $transaccion->amount,
                 'transaction' => 'RETURN',
                 'invoice'=>substr(strtotime(now()),3) . rand(10000,99999),
                 'tickets_amount'=>$transaccion->tickets_amount,
             ]);
+            $driver = User::find($transaccion->driver_id);
+            $cliente = User::find($transaccion->client_id);
+
+            $driver->wallet->creditos  =  $driver->wallet->creditos - $transaccion->amount;
+            $driver->wallet->creditos->save();
+
+            $cliente->wallet->creditos  =  $cliente->wallet->creditos - $transaccion->amount;
+            $cliente->wallet->creditos->save();
+
+
             return response()->json([
                 'message'=> 'Reembolso Exitoso',
+                'Driver_wallet'=> $driver->wallet->creditos,
+                'Client_wallet'=> $cliente->wallet->creditos,
+                'trasaccion_reembolso'=> $refundTransaccion,
             ], 200);
 
         }else {

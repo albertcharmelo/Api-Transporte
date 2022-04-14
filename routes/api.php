@@ -26,7 +26,7 @@ Route::group(['prefix' => 'auth'],function () {
         Route::get('createQr','WalletController@exampleqr');
         Route::post('updateLocation','UserLocationController@updateLocation');
         Route::post('getLocation','UserLocationController@getLocation');
-        Route::post('createSolicitudChofer','ChoferesController@createSolcitudChofer');
+        Route::post('createSolicitudChofer','panel\ChoferesController@createSolcitudChofer');
 
     });
 });

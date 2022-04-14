@@ -35,6 +35,3 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/miperfil/actualizarDatos', 'panel\PerfilController@actualizarDatosPerfil')->middleware('isChofer');
 
 });
-
-
-

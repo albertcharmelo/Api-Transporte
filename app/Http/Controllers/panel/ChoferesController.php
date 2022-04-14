@@ -40,7 +40,7 @@ class ChoferesController extends Controller
             $solicitud = SolicitudChofer::updateOrCreate(
                 [
                     'user_id'=>Auth::user()->id,
-                    'estado'=>'PENDIENTE',
+                    'estado_solicitud'=>'PENDIENTE',
                 ],
                 [
                 'name_user' => Auth::user()->full_name,

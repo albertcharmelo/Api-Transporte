@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\CreditTransaction;
+use App\Liquidacion;
 use App\User;
 use App\QrCodeUser;
 use App\UserTransaction;
@@ -173,6 +174,21 @@ class WalletController extends Controller
             'transactions'=>$transaccion_unfilter
         ],200);
 
+    }
+
+    public function liquidacion(Request $request){
+        $liquidacion = Liquidacion::create([
+            'user_id'=>Auth::user()->id,
+            'banco'=>Auth::user()->datos_bancarios->banco,
+            'cedula'=>Auth::user()->datos_bancarios->cedula,
+            'cuenta'=>Auth::user()->datos_bancarios->cuenta,
+            'monto_liquidar'=>$request->monto_liquidar
+        ]);
+
+        return response()->json([
+            'message' => 'Liquidacion realizada',
+            'liquidacion'=>$liquidacion
+        ],200);
     }
     
 

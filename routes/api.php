@@ -42,6 +42,7 @@ Route::group(['prefix'=>'walltet','middleware' => 'auth:api'],function () {
     Route::post('recharge', 'WalletController@recargar');
     Route::post('transactions', 'WalletController@transactions');
     Route::post('refund','WalletController@refund');
+    Route::post('liquidacion','WalletController@liquidacion');
 
 });
 
@@ -61,5 +62,4 @@ Route::group(['prefix'=>'buslines','middleware' => 'auth:api'],function () {
 Route::group(['prefix'=>'notification','middleware' => 'auth:api'],function () {
     Route::post('updateTokenNotification','AuthController@updateTokenNotification');
     Route::post('getTokenNotification','AuthController@getTokenNotification');
-
 });

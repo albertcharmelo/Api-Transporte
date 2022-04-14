@@ -90,9 +90,10 @@ class WalletController extends Controller
             $transaccion = event(new CreditTransaction($client_wallet->user_id,$driver_wallet->user_id,$amount,$request->transaction,$request->tickets_amount));
             return response()->json([
                 'message'=> 'Transacción Realizada',
-                'newDriverBalance'=>$client_wallet->creditos,
+                'newDriverBalance'=>$driver_wallet->creditos,
                 'newClientBalance'=> $client_wallet->creditos,
-                'tickets_amount'=> $request->tickets_amount
+                'tickets_amount'=> $request->tickets_amount,
+                'transaccion'=> $transaccion,
 
             ],200);
         }else{
@@ -109,31 +110,25 @@ class WalletController extends Controller
     }
 
     public static function refund(Request $request){
-        $transaccion = UserTransaction::findOrFail($request->id)->whereBetween('created_at',[now()->subHour(24),now()])->get()->first();
+        $transaccion = UserTransaction::where('id',$request->id)->whereBetween('created_at',[now()->subHour(24),now()])->get()->first();
         if ($transaccion) {
-            $refundTransaccion =  UserTransaction::create([
-                'driver_id'=> $transaccion->driver_id,
-                'client_id'=> $transaccion->client_id,
-                'amount'=> $transaccion->amount,
-                'transaction' => 'RETURN',
-                'invoice'=>substr(strtotime(now()),3) . rand(10000,99999),
-                'tickets_amount'=>$transaccion->tickets_amount,
-            ]);
+            $transaccion->transaction ='RETURN';
+            $transaccion->save();
             $driver = User::find($transaccion->driver_id);
             $cliente = User::find($transaccion->client_id);
-
+            
             $driver->wallet->creditos  =  $driver->wallet->creditos - $transaccion->amount;
-            $driver->wallet->creditos->save();
+            $driver->wallet->save();
 
-            $cliente->wallet->creditos  =  $cliente->wallet->creditos - $transaccion->amount;
-            $cliente->wallet->creditos->save();
+            $cliente->wallet->creditos  =  $cliente->wallet->creditos + $transaccion->amount;
+            $cliente->wallet->save();
 
 
             return response()->json([
                 'message'=> 'Reembolso Exitoso',
                 'Driver_wallet'=> $driver->wallet->creditos,
                 'Client_wallet'=> $cliente->wallet->creditos,
-                'trasaccion_reembolso'=> $refundTransaccion,
+                'trasaccion_reembolso'=> $transaccion,
             ], 200);
 
         }else {
@@ -142,7 +137,6 @@ class WalletController extends Controller
             ], 400);
         }   
     }
-
 
     public static function recargar (Request $request){
         $user = Auth::user();

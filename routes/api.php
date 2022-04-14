@@ -26,6 +26,7 @@ Route::group(['prefix' => 'auth'],function () {
         Route::get('createQr','WalletController@exampleqr');
         Route::post('updateLocation','UserLocationController@updateLocation');
         Route::post('getLocation','UserLocationController@getLocation');
+        Route::post('createSolicitudChofer','ChoferesController@createSolcitudChofer');
 
     });
 });
@@ -50,4 +51,15 @@ Route::group(['prefix'=>'walltet','middleware' => 'auth:api'],function () {
 Route::group(['prefix'=>'buslines','middleware' => 'auth:api'],function () {
      Route::post('/','UserLineaTransporteController@getBusLines');
      Route::post('/getBusCollection','UserLineaTransporteController@getBusCollection');
+     Route::post('/getTarifas','UserLineaTransporteController@getTarifas');   
+     Route::post('/getTarifa','UserLineaTransporteController@getTarifa');   
+});
+
+/***************************/
+/******** NOTIFICATION ************/
+/***************************/
+Route::group(['prefix'=>'notification','middleware' => 'auth:api'],function () {
+    Route::post('updateTokenNotification','AuthController@updateTokenNotification');
+    Route::post('getTokenNotification','AuthController@getTokenNotification');
+
 });

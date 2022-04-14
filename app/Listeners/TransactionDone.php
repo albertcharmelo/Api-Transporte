@@ -28,8 +28,7 @@ class TransactionDone
     public function handle(CreditTransaction $event)
     {
         
-        
-        UserTransaction::create([
+        $trasacción = UserTransaction::create([
             'driver_id'=> $event->driver,
             'client_id'=> $event->client,
             'other_user_id'=> $event->otherUser,
@@ -38,6 +37,8 @@ class TransactionDone
             'invoice'=>$event->invoice,
             'tickets_amount'=>$event->tickets_amount,
         ]);
+        
+        return $trasacción;
 
     }
 }

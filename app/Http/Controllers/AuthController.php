@@ -130,4 +130,31 @@ class AuthController extends Controller
             'user'=>$usuario
         ],200);
     }
+
+     /**
+     * Actualizar Token del Usuario
+     */
+    public function updateTokenNotification(Request $request){
+        $request->validate([
+            'token_notification'=>'required'
+        ]);
+        $user = User::find(Auth::user()->id);
+        $user->token_notification = $request->token_notification;
+        $user->save();
+        return response()->json([
+            'message'=>'Token de notificacion actualizado'
+        ],200);
+    }
+
+
+     /**
+     * Obetenr Token del Usuario
+     */
+    public function getTokenNotification(Request $request){
+        $user = User::find(Auth::user()->id);
+        return response()->json([
+            'token_notification'=>$user->token_notification
+        ],200);
+    }
+
 }

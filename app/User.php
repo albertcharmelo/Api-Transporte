@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'full_name', 'email', 'password','gender','id_card','profile_image','type_id_card','idShow'
+        'full_name', 'email', 'password','gender','id_card','profile_image','type_id_card','idShow','token_notification'
     ];
     protected $with = ['location'];
 
@@ -88,5 +88,16 @@ class User extends Authenticatable
     public function lineaTransporte()
     {
         return $this->belongsTo(UserLineaTransporte::class, 'lineaTransporte_id', 'id');
+    }
+
+    
+    public function datos_chofer()
+    {
+        return $this->hasOne(DatosChofer::class, 'user_id', 'id');
+    }
+
+    public function datos_bancarios()
+    {
+        return $this->hasOne(UserDatosBancarios::class, 'user_id', 'id');
     }
 }

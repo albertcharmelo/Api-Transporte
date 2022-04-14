@@ -156,10 +156,12 @@ class WalletController extends Controller
     
     public function transactions(Request $request){
         
-        $user = Auth::user();
+         $user = Auth::user();
         
         $transaccion_unfilter = UserTransaction::where('client_id',$user->id)
-                                                ->orWhere('driver_id',$user->id)->paginate(10);
+                                                ->orWhere('driver_id',$user->id)
+                                                ->orderBy('updated_at','DESC')
+                                                ->paginate(10);
         
 
         $user_type= Auth::user()->type_user == 2 ? 'CONDUCTOR' : 'CLIENTE';

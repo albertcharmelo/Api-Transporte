@@ -92,4 +92,9 @@ return [
         public_path('qr_api_transporte') => storage_path('app/qr'),
     ],
 
+    // 'links' => [
+    //     public_path('storage') => storage_path('app/public'),
+    //     '/home/soluci41/public_html/qr_api_transporte' => storage_path('app/qr'),
+    // ],
+
 ];

@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\User;
 use Carbon\Carbon;
 use App\QrCodeUser;
-use Illuminate\Http\Request;
-use App\Http\Requests\StoreUser;
 use App\UserWallet;
+use Illuminate\Http\Request;
+use Illuminate\Mail\Message;
+use App\Http\Requests\StoreUser;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Password;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AuthController extends Controller
@@ -81,7 +83,7 @@ class AuthController extends Controller
         ]);
 
         $credentials = request(['email', 'password']);
-
+    
         if (!Auth::attempt($credentials))
             return response()->json([
                 'message' => 'Unauthorized'
@@ -114,6 +116,57 @@ class AuthController extends Controller
             'message' => 'Cierre de Sesion Satisfactoriamente'
         ]);
     }
+
+
+    
+    public function forgotPassword2(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|string|email',
+        ]);
+        $credentials = ['email' => $request->email];
+        $response = Password::sendResetLink($credentials, function (Message $message) {
+            $message->subject($this->getEmailSubject());
+        });
+
+        switch ($response) {
+            case Password::RESET_LINK_SENT:
+                return response()->json([
+                    'message' => 'Se ha enviado un correo para restablecer la contraseña'
+                ]);
+            case Password::INVALID_USER:
+                return response()->json([
+                    'message' => 'El usuario no existe'
+                ], 404);
+        };
+    }
+
+    //function to send email to reset password
+
+
+
+    
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|string|email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user)
+            return response()->json([
+                'message' => 'El usuario no existe'
+            ], 404);
+
+        $user->sendPasswordResetNotification($user->email);
+
+        return response()->json([
+            'message' => 'Se ha enviado un correo para restablecer la contraseña'
+        ]);
+    }
+
+
 
     /**
      * Obtener el objeto User como json

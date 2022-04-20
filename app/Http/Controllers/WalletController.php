@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\CreditTransaction;
-use App\Liquidacion;
 use App\User;
 use App\QrCodeUser;
-use App\UserTransaction;
 use App\UserWallet;
-use Google\Service\ShoppingContent\Amount;
+use App\Liquidacion;
+use App\UserTransaction;
 use Illuminate\Http\Request;
+use App\Events\CreditTransaction;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Google\Service\ShoppingContent\Amount;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class WalletController extends Controller
@@ -177,19 +178,71 @@ class WalletController extends Controller
     }
 
     public function liquidacion(Request $request){
-        $liquidacion = Liquidacion::create([
-            'user_id'=>Auth::user()->id,
-            'banco'=>Auth::user()->datos_bancarios->banco,
-            'cedula'=>Auth::user()->datos_bancarios->cedula,
-            'cuenta'=>Auth::user()->datos_bancarios->cuenta,
-            'monto_liquidar'=>$request->monto_liquidar
-        ]);
+        $user = Auth::user();
+        
+        if ($user->type_user == 2) {
+            if ($user->datos_bancarios) {
+                if ($request->monto_liquidar > $user->wallet->creditos) {
+                    return response()->json([
+                        'message' => 'El monto a liquidar es mayor al saldo de la cuenta',
+                
+                    ],200);
+                }else{
+                    if ($request->monto_liquidar <= 0) {
+                        return response()->json([
+                            'message' => 'El monto a liquidar es menor o igual a cero',
+                
+                        ],200);
+                    }else{
+                        $find_liquidacion = Liquidacion::where('user_id',$user->id)->get()->first();
+                        if ($find_liquidacion) {
+                            $find_liquidacion->monto_liquidar = $request->monto_liquidar + $find_liquidacion->monto_liquidar;
+                            $find_liquidacion->save();
+                            $user->wallet->creditos = $user->wallet->creditos - $request->monto_liquidar;
+                            $user->wallet->save();
+                            return response()->json([
+                                'message' => 'Liquidacion realizada',
+                                'liquidacion'=>$find_liquidacion,
+                                'userBalance'=>$user->wallet->creditos
+                            ],200);
+                        }else{
+                            
+                            $liquidacion = Liquidacion::create([
+                                'user_id'=>Auth::user()->id,
+                                'banco'=>Auth::user()->datos_bancarios->banco,
+                                'cedula'=>Auth::user()->datos_bancarios->id_card,
+                                'numero_de_cuenta'=>Auth::user()->datos_bancarios->numero_de_cuenta,
+                                'monto_liquidar'=>$request->monto_liquidar,
+                                'tipo_cuenta'=>Auth::user()->datos_bancarios->tipo_cuenta,
+                            ]);
+                            $user->wallet->creditos = $user->wallet->creditos - $request->monto_liquidar;
+                            $user->wallet->save();
+                            return response()->json([
+                                'message' => 'Liquidacion realizada',
+                                'liquidacion'=>$liquidacion,
+                                'userBalance'=>$user->wallet->creditos
+                            ],200);
+                        }                      
+                    }  
+                }
 
-        return response()->json([
-            'message' => 'Liquidacion realizada',
-            'liquidacion'=>$liquidacion
-        ],200);
+             
+            }else{
+                return response()->json([
+                    'message' => 'Debe completar los datos del perfil en siguiente enlace: ',
+                    'link'=>URL::to('miperfil')
+                ],200);
+            }
+        }else{
+            return response()->json([
+                'message' => 'No posee los permisos para realizar esta accion',
+            ],200);
+        }
+        
     }
+
+
+      
     
 
 }

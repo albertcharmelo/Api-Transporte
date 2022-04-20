@@ -49,7 +49,9 @@ return [
         ],
         'qr' => [
             'driver' => 'local',
-            'root' => storage_path('app/qr'),
+            'root' => public_path('qr'),
+            'visibility' => 'public',
+            
         ],
         'public' => [
             'driver' => 'local',

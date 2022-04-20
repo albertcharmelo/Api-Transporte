@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => '025c2235f35a50152a260c5913ca5ef5fbe4474f',
+    'reference' => '1e697396fd159f46b309f0bcd86523d684f35a26',
     'name' => 'laravel/laravel',
   ),
   'versions' => 
@@ -485,7 +485,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '025c2235f35a50152a260c5913ca5ef5fbe4474f',
+      'reference' => '1e697396fd159f46b309f0bcd86523d684f35a26',
     ),
     'laravel/passport' => 
     array (
@@ -513,6 +513,15 @@
       array (
       ),
       'reference' => 'd01a705763c243b07be795e9d1bb47f89260f73d',
+    ),
+    'laraveles/spanish' => 
+    array (
+      'pretty_version' => '1.5.0',
+      'version' => '1.5.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '2224e3db7ec399952523b0769a7677de0b6afd8b',
     ),
     'lcobucci/clock' => 
     array (

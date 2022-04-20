@@ -81,11 +81,17 @@
                  </div>
                  <div class="text-center">
                    <button type="submit" class="btn btn-primary my-4">Iniciar sesión</button>
+                   <span class="d-block"><a href="/password/reset">¿Olvidaste tu contraseña?</a></span>
                  </div>
                </form>
              </div>
            </div>
+           <div class="col-12 d-flex justify-content-center">
+            <img src="{{ asset('img/andorid.png') }}" height="100" alt="">
+            <img src="{{ asset('img/DownloadApkpng.png') }}" height="100" alt="">
+          </div>
          </div>
+        
        </div>
      </div>
    </div>

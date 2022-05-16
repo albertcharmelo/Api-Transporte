@@ -35,9 +35,16 @@
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link active text-warning text-decoration-none" href="#" role="button">
+                <a class="nav-link active text-warning text-decoration-none" href="/recargas/index" role="button">
                     <i class="fas fa-hand-holding-usd"></i>
-                    <span class="nav-link-text">Liquidación</span>
+                    <span class="nav-link-text">Importar Recargas</span>
+                </a>
+           
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active text-info text-decoration-none" href="/liquidaciones/index" role="button">
+                    <i class="fas fa-hand-holding-usd"></i>
+                    <span class="nav-link-text">Exportar Liquidación</span>
                 </a>
            
             </li>

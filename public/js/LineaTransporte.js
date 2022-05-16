@@ -112,3 +112,23 @@ function limpiarDatos(){
     lineaAmount=[];
     actualizarListadeMontos(lineaAmount);
 }
+
+
+
+function getLineaTransporte(id){
+    $.ajax({
+        type: "POST",
+        url: "/lineaTransporte/getLinea",
+        data: {
+            id: id
+        },
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+        success: function (response) {
+            console.log(response);
+            $('#linea_nombre').val(response.linea_nombre);
+            lineaAmount = response.lineaTarifas;
+            actualizarListadeMontos(lineaAmount);
+        }
+    });
+
+}

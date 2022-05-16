@@ -29,8 +29,17 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/lineaTransporte', 'panel\LineaTransporteController@index');
         Route::post('/lineaTransporte/getlineasTransporte', 'panel\LineaTransporteController@getlineasTransporte');
         Route::post('/lineaTransporte/guardarLinea', 'panel\LineaTransporteController@guardarLinea');
+
+
+        Route::get('/recargas/index','panel\RecargasController@index');
+        Route::post('/recargas/chequearReferencia','panel\RecargasController@chequearReferencia');
+        Route::post('/recargas/subirReferencias','panel\RecargasController@subirReferencias');
+
+        Route::get('/liquidaciones/index','panel\LiquidacionController@index');
+        Route::post('/liquidaciones/getLiquidaciones','panel\LiquidacionController@getLiquidaciones');
+
+
     });
-    
     Route::get('/miperfil', 'panel\PerfilController@index')->middleware('isChofer');
     Route::post('/miperfil/actualizarDatos', 'panel\PerfilController@actualizarDatosPerfil')->middleware('isChofer');
 

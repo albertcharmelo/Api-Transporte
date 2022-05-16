@@ -2,12 +2,24 @@
 
 namespace App\Http\Controllers\panel;
 
+use App\Exports\LiquidacionesExport;
 use App\Http\Controllers\Controller;
 use App\Liquidacion;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use PhpParser\Node\Expr\FuncCall;
 
 class LiquidacionController extends Controller
 {
+    
+    public function index(){
+        return view('panel.liquidacion.index');
+    }
+
+    public static function getLiquidaciones(Request $request) {
+        return Excel::download(new LiquidacionesExport('Exportación de Liquidación'), 'Facturación.xlsx');
+    }
+    
     public static function LiquidarUsuarios(){
         $liquidacion = Liquidacion::with('user')->get();
         $content = '';
@@ -30,4 +42,6 @@ class LiquidacionController extends Controller
         $file = file_get_contents($filename.'.txt');
         file_put_contents($path, $file);
     }
+
+    
 }

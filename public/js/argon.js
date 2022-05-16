@@ -1704,7 +1704,7 @@ var Dropzones = (function() {
 	if ($dropzone.length) {
 
 		// Set global options
-		globalOptions();
+		// globalOptions();
 
 		// Init dropzones
 		$dropzone.each(function() {

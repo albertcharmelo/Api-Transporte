@@ -102,4 +102,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserDatosBancarios::class, 'user_id', 'id');
     }
+
+    public function liquidacion_pendiente()
+    {
+        
+        return $this->hasOne(Liquidacion::class, 'user_id', 'id');
+    }
 }

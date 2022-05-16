@@ -9,6 +9,7 @@ use App\Liquidacion;
 use App\UserTransaction;
 use Illuminate\Http\Request;
 use App\Events\CreditTransaction;
+use App\UserRecarga;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -113,7 +114,7 @@ class WalletController extends Controller
 
     public static function refund(Request $request){
         $transaccion = UserTransaction::where('id',$request->id)->whereBetween('created_at',[now()->subHour(24),now()])->get()->first();
-        if ($transaccion) {
+        if ($transaccion &&  $transaccion->transaction != 'RETURN') {
             $transaccion->transaction ='RETURN';
             $transaccion->save();
             $driver = User::find($transaccion->driver_id);
@@ -144,12 +145,17 @@ class WalletController extends Controller
         $user = Auth::user();
         
         if($user && $request->date && $request->reference   && $request->bank){
+        
+            UserRecarga::create([
+                'banco'=>$request->bank,
+                'referencia'=>$request->reference,
+                'fecha'=>$request->date,
+                'user_id'=>$user->id,
+            ]);
             
-            
-            $user->wallet->creditos =  $user->wallet->creditos + 10;
-            $user->wallet->save();
+      
             return response()->json([
-                'message' => 'Recarga de creditos realizada',
+                'message' => 'Solición de recarga enviada',
                 'userBalance'=>$user->wallet->creditos
             ], 200);
         }
@@ -240,9 +246,4 @@ class WalletController extends Controller
         }
         
     }
-
-
-      
-    
-
 }

@@ -54,7 +54,7 @@ class ChoferesController extends Controller
                 ]
             );
 
-            return response()->json($solicitud);
+            return response()->json(['solicitud'=>$solicitud,'message'=>'Solicitud enviada, en espera de su aprobación']);
         }else{
             return response()->json(['message'=>'El usuario ya es un chofer']);
         }
@@ -62,6 +62,27 @@ class ChoferesController extends Controller
     
     }
 
+    //create DatosChofer with data of SolicitudChofer
+    public function createDatosChofer(Request $request)
+    {
+        $solicitud = SolicitudChofer::find($request->id);
+        $datosChofer = DatosChofer::updateOrCreate(
+            [
+                'user_id'=>$solicitud->user_id,
+            ],
+            [
+                'user_id' => $solicitud->user_id,
+                'name_user' => $solicitud->name_user,
+                'placa'=> $solicitud->placa,
+                'dueño_vehiculo'=> $solicitud->dueño_vehiculo,
+                'marca_vehiculo'=> $solicitud->marca_vehiculo,
+                'año_vehiculo'=> $solicitud->año_vehiculo,
+                'tipo_combustible'=> $solicitud->tipo_combustible,
+            ]
+        );
+
+        return response()->json($datosChofer);
+    }
     public function aprobarSolicitudChofer(Request $request)
     {
         $solicitud = SolicitudChofer::find($request->id);
@@ -69,16 +90,32 @@ class ChoferesController extends Controller
         $solicitud->save();
         $solicitud->user->type_user = 2;
         $solicitud->user->save();
-    
-        $datosChofer = new DatosChofer();
-        $datosChofer->name_user = $solicitud->name_user;
-        $datosChofer->user_id = $solicitud->user_id;
-        $datosChofer->placa = $solicitud->placa;
-        $datosChofer->dueño_vehiculo = $solicitud->dueño_vehiculo;
-        $datosChofer->año_vehiculo = $solicitud->año_vehiculo;
-        $datosChofer->marca_vehiculo = $solicitud->marca_vehiculo;
-        $datosChofer->tipo_combustible = $solicitud->tipo_combustible;
-        $datosChofer->save();
+        
+        $datosChofer = DatosChofer::updateOrCreate(
+            [
+                'user_id'=>$solicitud->user_id,
+            ],
+            [
+                'user_id' => $solicitud->user_id,
+                'name_user' => $solicitud->name_user,
+                'placa'=> $solicitud->placa,
+                'dueño_vehiculo'=> $solicitud->dueño_vehiculo,
+                'marca_vehiculo'=> $solicitud->marca_vehiculo,
+                'año_vehiculo'=> $solicitud->año_vehiculo,
+                'tipo_combustible'=> $solicitud->tipo_combustible,
+            ]
+        );
+        
+        
+        // $datosChofer = new DatosChofer();
+        // $datosChofer->user_id = $solicitud->user_id;
+        // $datosChofer->name_user = $solicitud->name_user;
+        // $datosChofer->placa = $solicitud->placa;
+        // $datosChofer->dueño_vehiculo = $solicitud->dueño_vehiculo;
+        // $datosChofer->marca_vehiculo = $solicitud->marca_vehiculo;
+        // $datosChofer->tipo_combustible = $solicitud->tipo_combustible;
+        // $datosChofer->año_vehiculo = $solicitud->año_vehiculo;
+        // $datosChofer->save();
 
         return response()->json($solicitud);
     }

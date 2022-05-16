@@ -53,7 +53,9 @@ Route::group(['prefix'=>'buslines','middleware' => 'auth:api'],function () {
      Route::post('/','UserLineaTransporteController@getBusLines');
      Route::post('/getBusCollection','UserLineaTransporteController@getBusCollection');
      Route::post('/getTarifas','UserLineaTransporteController@getTarifas');   
-     Route::post('/getTarifa','UserLineaTransporteController@getTarifa');   
+     Route::post('/getTarifa','UserLineaTransporteController@getTarifa'); 
+     Route::post('/createDatosChofer', 'panel\ChoferesController@createDatosChofer');  
+
 });
 
 /***************************/

@@ -10,6 +10,7 @@
    <title>Panel ASAD | Atubuses Online</title>
    <!-- Favicon -->
    <link rel="icon" href="/img/brand/favicon.png" type="image/png">
+   <link rel="stylesheet" href="{{ asset('css/app.css') }}">
    <!-- Fonts -->
    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700">
    <!-- Icons -->
@@ -119,6 +120,7 @@
    </div>
    <!-- Argon Scripts -->
    <!-- Core -->
+   <script src="{{ asset('js/app.js') }}"></script>
    <script src="/vendor/jquery/dist/jquery.min.js"></script>
    <script src="/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
    <script src="/vendor/js-cookie/js.cookie.js"></script>

@@ -16,7 +16,7 @@
    <!-- Icons -->
    <link rel="stylesheet" href="/vendor/nucleo/css/nucleo.css" type="text/css">
    <link rel="stylesheet" href="/vendor/@fortawesome/fontawesome-free/css/all.min.css" type="text/css">
-  <link rel="stylesheet" href="/vendor/sweetalert2/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="{{ asset('/vendor/sweetalert2/dist/sweetalert2.min.css') }}">
   <link rel="stylesheet" href="/vendor/select2/dist/css/select2.min.css">
    <!-- Page plugins -->
    <!-- Argon CSS -->
@@ -101,7 +101,7 @@
    <script src="/vendor/jquery/dist/jquery.min.js"></script>
    <script src="/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
    <script src="/vendor/js-cookie/js.cookie.js"></script>
-   <script src="/vendor/sweetalert2/dist/sweetalert2.min.js"></script>
+   <script src="/vendor/sweetalert2/dist/sweetalert2.all.min.js"></script>
    <script src="/vendor/jquery.scrollbar/jquery.scrollbar.min.js"></script>
    <script src="/vendor/jquery-scroll-lock/dist/jquery-scrollLock.min.js"></script>
    <!-- Optional JS -->

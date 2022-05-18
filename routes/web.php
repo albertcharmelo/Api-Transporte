@@ -37,6 +37,8 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('/liquidaciones/index','panel\LiquidacionController@index');
         Route::post('/liquidaciones/getLiquidaciones','panel\LiquidacionController@getLiquidaciones');
+        Route::post('/liquidaciones/updateComision','panel\LiquidacionController@updateComision');
+
 
 
     });

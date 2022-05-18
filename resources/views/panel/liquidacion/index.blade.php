@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('css')
-<link rel="stylesheet" href="sweetalert2.min.css">
+
 
 @endsection
 @section('header')
@@ -16,6 +16,7 @@
 </div>
 @endsection
 @section('content')
+@include('panel.partials.modificarLiquidacion')
 <div class="card">
     <!-- Card header -->
     @if (session()->has('success'))
@@ -24,7 +25,7 @@
         <input type="hidden" id="success" value="">
     @endif
     <div class="card-header">
-      <h3 class="mb-0">Obetner lista de liquidaciones</h3>
+        <h3 class="mb-0">Obtener lista de liquidaciones <span class="text-right ml-3"  data-toggle="modal" data-target="#modalModificarLiquidacion" style="cursor: pointer;font-size: 20px"><i class="fas fa-cogs"></i></span></h3>
     </div>
     <!-- Card body -->
     <div class="card-body">
@@ -63,7 +64,53 @@
         })
     });
 
-   
+    var comision = document.getElementById('comision');
+    var saveComisionBTN = document.getElementById('saveComision');
+
+    saveComisionBTN.addEventListener('click',function(){
+      
+        var url = '/liquidaciones/updateComision';
+        var data = {
+            'comision': comision.value
+        }
+        var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": token
+            },
+            body: JSON.stringify(data)
+        })
+        .then(function(response){
+            return response.json();
+        })
+        .then(function(data){
+            if(data.success){
+                Swal.fire({
+                    title: '¡Comisión actualizada!',
+                    text: 'La comisión ha sido actualizada correctamente',
+                    type: 'success',
+                    showCancelButton: false,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '¡Listo!'
+                }).then((result) => {
+                    if (result.value) {
+                        location.reload();
+                    }
+                })
+            }
+        })
+        .catch(function(error){
+            console.log(error);
+        })
+    })
+    
+
+
+    
+
  
 
 </script>

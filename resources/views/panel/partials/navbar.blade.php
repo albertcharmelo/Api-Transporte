@@ -37,7 +37,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link active text-warning text-decoration-none" href="/recargas/index" role="button">
-                    <i class="fas fa-hand-holding-usd"></i>
+                    <i class="fas fa-wallet"></i>
                     <span class="nav-link-text">Importar Recargas</span>
                 </a>
            

@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers\panel;
 
-use App\Exports\LiquidacionesExport;
-use App\Http\Controllers\Controller;
 use App\Liquidacion;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 use PhpParser\Node\Expr\FuncCall;
+use Illuminate\Support\Facades\DB;
+use App\Exports\LiquidacionesExport;
+use App\Http\Controllers\Controller;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LiquidacionController extends Controller
 {
     
     public function index(){
-        return view('panel.liquidacion.index');
+        $comision = DB::table('comisiones')->where('id', '=', 1)->get()->first();
+        
+        return view('panel.liquidacion.index')->with(compact('comision'));
     }
 
     public static function getLiquidaciones(Request $request) {
@@ -43,5 +46,16 @@ class LiquidacionController extends Controller
         file_put_contents($path, $file);
     }
 
-    
+    public static function updateComision(Request $request){
+       
+        $comision = DB::table('comisiones')->where('id', '=', 1)->update([
+            'comision'=> floatval($request->comision)
+        ]);
+      
+      
+
+        return response()->json(['success' => 'Comision actualizada correctamente']);
+
+
+    }
 }

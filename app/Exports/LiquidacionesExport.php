@@ -65,8 +65,6 @@ class LiquidacionesExport implements FromCollection, WithHeadings, ShouldAutoSiz
         $userResults = $userResults->filter(function($user){
             return $user != null;
         });
-
-        dd($userResults);
         
         foreach ($user as $key => $user) {
             if ($user->wallet->creditos != 0) {
@@ -132,9 +130,7 @@ class LiquidacionesExport implements FromCollection, WithHeadings, ShouldAutoSiz
         $sheet->getStyle('A2:F2')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
         $sheet->getStyle('A2:F2')->getFill()->getStartColor()->setARGB('FFF9A11F');
         
-        //font size and align center text A1:L1
-        $sheet->getStyle('A3:F3')->getAlignment()->setHorizontal('center');
-        $sheet->getStyle('A3:F3')->getAlignment()->setVertical('center');
+   
         
         return $sheet;
     }

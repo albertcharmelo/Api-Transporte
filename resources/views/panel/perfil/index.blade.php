@@ -53,7 +53,7 @@
                             <div class="row">
                                 <div class="col">
                                     <h5 class="card-title text-uppercase text-muted mb-0 text-white">Linea de Transporte</h5>
-                                    <span class="h2 font-weight-bold mb-0 text-white">{{ auth()->user()->lineaTransporte->linea_nombre }}</span>
+                                    <span class="h2 font-weight-bold mb-0 text-white">{{ $user_linea_transporte->linea_nombre }}</span>
                                 </div>
                                 <div class="col-auto">
                                     <div class="icon icon-shape bg-white text-dark rounded-circle shadow">
@@ -136,7 +136,12 @@
                                     <div class="form-group">
                                         <label class="form-control-label" for="input-address">Número de cuenta</label>
                                         <input id="input-address" class="form-control" placeholder="Número de cuenta bancaria"
-                                            value="{{ auth()->user()->datos_bancarios->numero_de_cuenta }}" name="numero_de_cuenta" type="text" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" maxlength="20" >
+                                            value="
+                                                @if(auth()->user()->datos_bancarios != null)
+                                                {{ auth()->user()->datos_bancarios->numero_de_cuenta}}
+                                                @else
+                                                ""
+                                                @endif" name="numero_de_cuenta" type="text" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" maxlength="20" >
                                     </div>
                                 </div>
                             </div>
@@ -152,10 +157,14 @@
                                     <div class="form-group">
                                         <label class="form-control-label" for="input-country">Tipo de cuenta</label>
                                         <select name="tipo_cuenta" class="form-control" id="">
-                                            <option @if (auth()->user()->datos_bancarios->tipo_cuenta == 'AHORRO')
+                                            @if(auth()->user()->datos_bancarios == null)
+                                                <option disabled selected value="">Seleccione el tipo de cuenta</option>
+                                            @endif
+
+                                            <option @if ( auth()->user()->datos_bancarios != null && auth()->user()->datos_bancarios->tipo_cuenta == 'AHORRO')
                                                 selected
                                             @endif value="AHORRO">Ahorro</option>
-                                            <option @if (auth()->user()->datos_bancarios->tipo_cuenta == 'CORRIENTE')
+                                            <option @if ( auth()->user()->datos_bancarios != null && auth()->user()->datos_bancarios->tipo_cuenta == 'CORRIENTE')
                                                 selected
                                             @endif value="CORRIENTE">Corriente</option>
                                         </select>

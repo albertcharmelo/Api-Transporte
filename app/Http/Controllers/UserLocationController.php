@@ -35,12 +35,11 @@ class UserLocationController extends Controller
     }
 
     public static function turnOffLocation(){
-
-        return UserLocation::where('updated_at','<=',now()->subMinutes(30))->update([
-            'driving'=>2,
-        ]);
-        
-
+        $users = UserLocation::where('driving',true)->where('updated_at','<',now()->subMinutes(2))->get();
+        foreach ($users as $user) {
+            $user->driving = 'false';
+            $user->save();
+        }    
     }
 
 

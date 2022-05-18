@@ -53,6 +53,12 @@ return [
             'visibility' => 'public',
             
         ],
+        'liquidaciones' => [
+            'driver' => 'local',
+            'root' => public_path('liquidaciones'),
+            'visibility' => 'public',
+            
+        ],
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

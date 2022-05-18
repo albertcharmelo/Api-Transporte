@@ -28,6 +28,8 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('20minute:update')->everyFifteenMinutes();
+        $schedule->command('liquidacion:daily')->dailyAt('21:00');
+
 
     }
 

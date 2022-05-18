@@ -11,7 +11,10 @@ use Illuminate\Support\Facades\Auth;
 class PerfilController extends Controller
 {
     function index(){
-        return view('panel.perfil.index');
+
+        $user_linea_transporte = User::find(Auth::user()->id)->lineaTransporte;
+        // dd(Auth::user()->datos_bancarios);
+        return view('panel.perfil.index')->with(compact('user_linea_transporte'));
     }
 
     function actualizarDatosPerfil(Request $request){

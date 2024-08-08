@@ -7,7 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Auth\Passwords\CanResetPassword;
-
+use Illuminate\Support\Str; // Importar la clase Str
 class User extends Authenticatable
 {
     use Notifiable;
@@ -20,7 +20,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'full_name', 'email', 'password','gender','id_card','profile_image','type_id_card','idShow','token_notification'
+        'full_name', 'email', 'password', 'gender', 'id_card', 'profile_image', 'type_id_card', 'idShow', 'token_notification'
     ];
     protected $with = ['location'];
 
@@ -50,17 +50,17 @@ class User extends Authenticatable
      */
     public function qrCode()
     {
-        return $this->hasOne(QrCodeUser::class,'users_id', 'id');
+        return $this->hasOne(QrCodeUser::class, 'users_id', 'id');
     }
 
-     /**
+    /**
      * Get the qrCode associated with the User
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function wallet()
     {
-        return $this->hasOne(UserWallet::class,'user_id', 'id');
+        return $this->hasOne(UserWallet::class, 'user_id', 'id');
     }
     /**
      * Get the type_user that owns the User
@@ -69,7 +69,7 @@ class User extends Authenticatable
      */
     public function type_user()
     {
-        return $this->belongsTo(UserPermission::class, 'type_user','id');
+        return $this->belongsTo(UserPermission::class, 'type_user', 'id');
     }
 
     /**
@@ -92,7 +92,7 @@ class User extends Authenticatable
         return $this->belongsTo(UserLineaTransporte::class, 'lineaTransporte_id', 'id');
     }
 
-    
+
     public function datos_chofer()
     {
         return $this->hasOne(DatosChofer::class, 'user_id', 'id');
@@ -105,7 +105,28 @@ class User extends Authenticatable
 
     public function liquidacion_pendiente()
     {
-        
+
         return $this->hasOne(Liquidacion::class, 'user_id', 'id');
+    }
+
+
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+
+    /**
+     * Boot method to attach model events.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Evento creating para asignar un UUID al campo idShow
+        static::creating(function ($user) {
+            $user->idShow = (string) Str::uuid();
+        });
     }
 }

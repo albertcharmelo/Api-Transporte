@@ -24,12 +24,12 @@ class StoreUser extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string',
-            'type_id_card'=>'required|string|min:1|max:1',
-            'id_card'=>'required|string|unique:users,id_card',
-            'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|confirmed|min:8|max:16',
-    
+            "name" => "required|string",
+            "type_id_card" => "required|string|min:1|max:1",
+            "id_card" => "required|string|unique:users,id_card",
+            "email" => "required|string|email|unique:users",
+            "password" => "required|string|confirmed|min:8|max:16",
+
         ];
     }
 }

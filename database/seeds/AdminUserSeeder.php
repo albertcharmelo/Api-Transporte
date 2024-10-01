@@ -14,15 +14,15 @@ class AdminUserSeeder extends Seeder
     public function run()
     {
         User::create([
-            "full_name" => "Albert Charmelo",
+            "full_name" => "Programadores",
             "type_id_card" => "V",
             "id_card" => "00000000",
             "profile_image" => null,
             "type_user" => 3,
             "lineaTransporte_id" => null,
-            "password" => Hash::make("admin"),
+            "password" => Hash::make("programador#01."),
             "gender" => "MALE",
-            "email" => "albertcharmelocontacto@gmail.com",
+            "email" => "contacto@asadvzla.com",
         ]);
     }
 }

@@ -17,7 +17,7 @@ class CreateUserRecargasTable extends Migration
             $table->id();
             $table->string('banco');
             $table->string('referencia');
-            $table->date('fecha');
+            $table->dateTime('fecha');
             $table->unsignedBigInteger('user_id');
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

@@ -18,45 +18,45 @@ class AuthController extends Controller
      * Registro de usuario
      */
     public function signUp(StoreUser $request)
-    {   
-        
+    {
+
         //Create user
         try {
             $request->validated();
             $user = User::create([
                 'full_name' => $request->name,
-                'id_card'=>$request->id_card,
-                'type_id_card'=>$request->type_id_card,
+                'id_card' => $request->id_card,
+                'type_id_card' => $request->type_id_card,
                 'email' => $request->email,
                 'password' => bcrypt($request->password)
             ]);
             UserWallet::create([
-                'user_id'=>$user->id,
+                'user_id' => $user->id,
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Error al crear el usuario',
-                'error'=>$th,
+                'error' => $th,
             ], 400);
         }
-        
-     
+
+
         //Create first Qr code of user
         try {
             $usuarioRegistrado = User::find($user->id);
-            $qr_name = hash('sha256',now(),false);
+            $qr_name = hash('sha256', now(), false);
             $qr_registered = QrCodeUser::create([
-                'qr_image'=>"qr_api_transporte/$qr_name.png",
-                'users_id'=>$usuarioRegistrado->id,
-                'qr_name'=>$qr_name,
+                'qr_image' => "qr/$qr_name.png",
+                'users_id' => $usuarioRegistrado->id,
+                'qr_name' => $qr_name,
             ]);
-            $qr_idshow = QrCodeUser::where('id',$qr_registered->id)->get()->first();
+            $qr_idshow = QrCodeUser::where('id', $qr_registered->id)->get()->first();
             $qr = QrCode::format('png')->size(250)->color(40, 209, 123)->generate($qr_idshow->qr_idShow);
-            Storage::disk('qr')->put("$qr_name".".png",$qr); 
+            Storage::disk('qr')->put("$qr_name" . ".png", $qr);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Error al crear el qr del usuario',
-                'error'=>$th,
+                'error' => $th,
             ], 400);
         }
 
@@ -65,7 +65,7 @@ class AuthController extends Controller
             'message' => 'Usuario creado satisfactoriamente',
         ], 201);
     }
-    
+
     /**
      * Inicio de sesión y creación de token
      */
@@ -97,7 +97,7 @@ class AuthController extends Controller
             'access_token' => $tokenResult->accessToken,
             'token_type' => 'Bearer',
             'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString()
-        ],200);
+        ], 200);
     }
 
     /**
@@ -117,13 +117,13 @@ class AuthController extends Controller
      */
     public function user(Request $request)
     {
-        $usuario = User::where('id',Auth::user()->id)
-        ->with('qrCode')
-        ->with('type_user')
-        ->with('wallet')
-        ->get();
+        $usuario = User::where('id', Auth::user()->id)
+            ->with('qrCode')
+            ->with('type_user')
+            ->with('wallet')
+            ->get();
         return response()->json([
-            'user'=>$usuario
-        ],200);
+            'user' => $usuario
+        ], 200);
     }
 }

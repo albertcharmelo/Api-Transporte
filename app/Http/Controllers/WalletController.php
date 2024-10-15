@@ -40,9 +40,11 @@ class WalletController extends Controller
         try {
             //Eliminamos el Qr existente 
             $qr = QrCodeUser::where('users_id', Auth::user()->id)->get()->first();
-            Storage::disk('qr')->delete($qr->qr_name . ".png");
-            $qr->delete();
-            Storage::disk('s3')->delete('path/file.jpg');
+            if ($qr) {
+                Storage::disk('qr')->delete($qr->qr_name . ".png");
+                $qr->delete();
+            }
+
             //Creamos un nuevo Qr
             $qr_name = hash('sha256', now(), false);
             $qr_registered = QrCodeUser::create([
@@ -81,9 +83,12 @@ class WalletController extends Controller
             ->get()
             ->first();
 
+
         $driver_wallet = UserWallet::where('user_id', Auth::user()->id)
             ->get()
             ->first();
+
+
         $amount = floatval($request->amount);
         try {
             if ($client_wallet->creditos >= $amount) {
@@ -108,7 +113,7 @@ class WalletController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Error en al efectuar la transaccion',
-
+                'error' => $th->getMessage(),
             ], 401);
         }
     }

@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'AdminUserSeeder' => $baseDir . '/database/seeds/AdminUserSeeder.php',
+    'App\\BncToken' => $baseDir . '/app/BncToken.php',
     'App\\Console\\Commands\\BuscarReferencias' => $baseDir . '/app/Console/Commands/BuscarReferencias.php',
     'App\\Console\\Commands\\LiquidacionExcel' => $baseDir . '/app/Console/Commands/LiquidacionExcel.php',
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
@@ -23,6 +24,7 @@ return array(
     'App\\Http\\Controllers\\Auth\\VerificationController' => $baseDir . '/app/Http/Controllers/Auth/VerificationController.php',
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
     'App\\Http\\Controllers\\HomeController' => $baseDir . '/app/Http/Controllers/HomeController.php',
+    'App\\Http\\Controllers\\PaymentBankController' => $baseDir . '/app/Http/Controllers/PaymentBankController.php',
     'App\\Http\\Controllers\\UserLineaTransporteController' => $baseDir . '/app/Http/Controllers/UserLineaTransporteController.php',
     'App\\Http\\Controllers\\UserLocationController' => $baseDir . '/app/Http/Controllers/UserLocationController.php',
     'App\\Http\\Controllers\\WalletController' => $baseDir . '/app/Http/Controllers/WalletController.php',

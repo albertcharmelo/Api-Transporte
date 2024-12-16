@@ -688,6 +688,7 @@ class ComposerStaticInit51a11203b47d1cb1927f7cbe018e8900
 
     public static $classMap = array (
         'AdminUserSeeder' => __DIR__ . '/../..' . '/database/seeds/AdminUserSeeder.php',
+        'App\\BncToken' => __DIR__ . '/../..' . '/app/BncToken.php',
         'App\\Console\\Commands\\BuscarReferencias' => __DIR__ . '/../..' . '/app/Console/Commands/BuscarReferencias.php',
         'App\\Console\\Commands\\LiquidacionExcel' => __DIR__ . '/../..' . '/app/Console/Commands/LiquidacionExcel.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
@@ -704,6 +705,7 @@ class ComposerStaticInit51a11203b47d1cb1927f7cbe018e8900
         'App\\Http\\Controllers\\Auth\\VerificationController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/VerificationController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\HomeController' => __DIR__ . '/../..' . '/app/Http/Controllers/HomeController.php',
+        'App\\Http\\Controllers\\PaymentBankController' => __DIR__ . '/../..' . '/app/Http/Controllers/PaymentBankController.php',
         'App\\Http\\Controllers\\UserLineaTransporteController' => __DIR__ . '/../..' . '/app/Http/Controllers/UserLineaTransporteController.php',
         'App\\Http\\Controllers\\UserLocationController' => __DIR__ . '/../..' . '/app/Http/Controllers/UserLocationController.php',
         'App\\Http\\Controllers\\WalletController' => __DIR__ . '/../..' . '/app/Http/Controllers/WalletController.php',

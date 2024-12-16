@@ -44,6 +44,12 @@ Route::group(['prefix' => 'walltet', 'middleware' => 'auth:api'], function () {
     Route::post('liquidacion', 'WalletController@liquidacion');
 });
 
+Route::group(['prefix' => 'bank'], function () {
+    Route::post('consultar', 'PaymentBankController@consultar');
+    Route::post('historial', 'PaymentBankController@historial');
+    Route::post('banklist', 'PaymentBankController@banks');
+});
+
 /***************************/
 /******** BUSLINES ************/
 /***************************/

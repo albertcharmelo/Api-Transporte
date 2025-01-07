@@ -177,6 +177,7 @@ class WalletController extends Controller
                 } else {
                     return response()->json([
                         'message' => 'Error al validar la transaccion',
+                        'error' => $response_from_valdiate->content(),
                     ], 400);
                 }
             } catch (\Throwable $th) {

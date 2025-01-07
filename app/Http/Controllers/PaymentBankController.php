@@ -265,7 +265,7 @@ class PaymentBankController extends Controller
                 $response = json_decode($response, true);
                 return response()->json(['data' => $response, 'status' => 200], 200);
             } else {
-                return response()->json(['error' => 'Error en la petición', 'status' => 404], 404);
+                return response()->json(['error' => 'Error en la petición', 'status' => 404, 'api_response' => $gResult], 404);
             }
         } catch (\Throwable $th) {
             return response()->json(['error' => 'Error en la petición', 'status' => 404], 404);

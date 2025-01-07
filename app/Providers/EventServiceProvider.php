@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Events\CreditTransaction;
+use App\Events\RecargaUserWallet;
+use App\Listeners\SaveBankTransaction;
 use App\Listeners\TransactionDone;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -20,8 +22,11 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
-        CreditTransaction::class=>[
+        CreditTransaction::class => [
             TransactionDone::class,
+        ],
+        RecargaUserWallet::class => [
+            SaveBankTransaction::class
         ]
     ];
 

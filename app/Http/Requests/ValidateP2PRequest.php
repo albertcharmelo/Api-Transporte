@@ -25,10 +25,10 @@ class ValidateP2PRequest extends FormRequest
     {
         return [
             'Amount' => 'required|numeric|regex:/^\d{1,11}(\.\d{1,2})?$/', //ejemplo 100.00
-            'BankCode' => 'required|integer', //. Ejemplo: 191
+            'BankCode' => 'required|string|max:3', //. Ejemplo: 191
             'PhoneNumber' => 'required|string|regex:/^58\d{10}$/', // Ejemplo: 584249999999
             'Reference' => 'required|integer',
-            'RequestDate' => 'required|date_format:Y/m/d\TH:i:s',
+
         ];
     }
 
@@ -45,27 +45,7 @@ class ValidateP2PRequest extends FormRequest
             'PhoneNumber.regex' => 'PhoneNumber must be a string with 12 digits starting with 58 and the rest of the digits',
             'Reference.required' => 'Reference is required',
             'Reference.integer' => 'Reference must be an integer',
-            'RequestDate.required' => 'RequestDate is required',
-            'RequestDate.date_format' => 'RequestDate must be a date with the format Y/m/d\TH:i:s',
-        ];
-    }
 
-    public function attributes()
-    {
-        return [
-            'Amount' => 'Amount',
-            'BankCode' => 'BankCode',
-            'PhoneNumber' => 'PhoneNumber',
-            'Reference' => 'Reference',
-            'RequestDate' => 'RequestDate',
         ];
-    }
-
-    public function prepareForValidation()
-    {
-        $this->merge([
-            'Amount' => number_format($this->Amount, 2, '.', ''),
-            'PhoneNumber' => '58' . $this->PhoneNumber,
-        ]);
     }
 }

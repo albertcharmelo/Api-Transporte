@@ -48,6 +48,8 @@ Route::group(['prefix' => 'bank'], function () {
     Route::post('consultar', 'PaymentBankController@consultar');
     Route::post('historial', 'PaymentBankController@historial');
     Route::post('banklist', 'PaymentBankController@banks');
+    Route::post('payp2p', 'PaymentBankController@sendPay');
+    Route::post('payp2pconfirm', 'PaymentBankController@ValidateP2P');
 });
 
 /***************************/

@@ -9,12 +9,16 @@ use App\Liquidacion;
 use App\UserTransaction;
 use Illuminate\Http\Request;
 use App\Events\CreditTransaction;
+use App\Events\RecargaUserWallet;
+use App\Http\Requests\ValidateP2PRequest;
 use App\UserRecarga;
 use Carbon\Carbon;
+use Faker\Provider\ar_SA\Payment;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Google\Service\ShoppingContent\Amount;
+use Illuminate\Support\Facades\DB;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class WalletController extends Controller
@@ -147,24 +151,45 @@ class WalletController extends Controller
         }
     }
 
-    public static function recargar(Request $request)
+    public static function recargar(ValidateP2PRequest $request)
     {
         $user = Auth::user();
 
-        if ($user && $request->date && $request->reference   && $request->bank) {
+        if ($user) {
+            if (WalletController::validateIfExistReference($request->Reference)) {
+                return response()->json([
+                    'message' => 'El pago ha sido registrado anteriormente',
+                ], 400);
+            }
 
-            UserRecarga::create([
-                'banco' => $request->bank,
-                'referencia' => $request->reference,
-                'fecha' => Carbon::parse($request->date),
-                'user_id' => $user->id,
-            ]);
+            DB::beginTransaction();
+            try {
+                $response_from_valdiate  =  PaymentBankController::ValidateP2P($request);
 
-
+                if ($response_from_valdiate->getStatusCode() == 200) {
+                    ## Disparar el evento para procesar la recarga
+                    $evento =  event(new RecargaUserWallet($user->id, $request->Amount, $request->BankCode, $request->Reference));
+                    DB::commit();
+                    return response()->json([
+                        'message' => 'Solición de recarga enviada',
+                        'userBalance' => $user->wallet->creditos
+                    ], 200);
+                } else {
+                    return response()->json([
+                        'message' => 'Error al validar la transaccion',
+                    ], 400);
+                }
+            } catch (\Throwable $th) {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'Error al validar la transaccion en el servidor, contacte a soporte',
+                    'error' => $th->getMessage(),
+                ], 400);
+            }
+        } else {
             return response()->json([
-                'message' => 'Solición de recarga enviada',
-                'userBalance' => $user->wallet->creditos
-            ], 200);
+                'message' => 'Error al validar la transaccion en el servidor, contacte a soporte',
+            ]);
         }
     }
 
@@ -248,6 +273,17 @@ class WalletController extends Controller
             return response()->json([
                 'message' => 'No posee los permisos para realizar esta accion',
             ], 200);
+        }
+    }
+
+
+    public static function validateIfExistReference($reference): bool
+    {
+        $recarga = UserRecarga::where('referencia', $reference)->get()->first();
+        if ($recarga) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

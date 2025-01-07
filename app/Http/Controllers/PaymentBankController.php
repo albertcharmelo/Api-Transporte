@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\BankUrisApi;
 use App\BncToken;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SendP2PRequest;
 use App\Http\Requests\ValidateP2PRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,6 +26,19 @@ class PaymentBankController extends Controller
         }
     }
 
+    public static
+    function refere()
+    {
+        //20220831090831
+        $fecha = date('Y-m-d h:i:s', time());
+        $fecha = strval($fecha);
+        $fecha = str_replace("-", "", $fecha);
+        $fecha = str_replace(":", "", $fecha);
+        $fecha = str_replace(" ", "", $fecha);
+        $result = $fecha;
+        return $result;
+    }
+
     public static function createHash($data)
     {
         $validation = hash('sha256', utf8_encode($data));
@@ -39,6 +53,8 @@ class PaymentBankController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($ch);
         curl_close($ch);
+        ## Usamos dd para debuggear
+        // dd($result);
         return $result;
     }
 
@@ -109,6 +125,7 @@ class PaymentBankController extends Controller
         $gurl = BankUrisApi::URI_AUTH;
         $gResult = json_decode(self::gPost($gurl, $jsonReq), true);
 
+        ## Se guarda en la DB para futuras consultas
         $token = BncToken::create([
             'token' => $gResult['value'],
             'expiration_date' => now()->addDay(),
@@ -200,6 +217,7 @@ class PaymentBankController extends Controller
     public static function ValidateP2P(ValidateP2PRequest $request): JsonResponse
     {
         $token = self::getToken();
+
         if (!$token) {
             return response()->json(['error' => 'Token not found'], 404);
         }
@@ -215,11 +233,13 @@ class PaymentBankController extends Controller
         $data = array(
             'AccountNumber' => env('Asad_Bnc_Account_Number'),
             'ClientID' => env('Asad_Bnc_ClientID'),
-            'Amount' => $request->Amount,
+            'Amount' => number_format($request->Amount, 2, ',', ' '),
             'BankCode' => $request->BankCode,
             'PhoneNumber' => $request->PhoneNumber,
             'Reference' => $request->Reference,
-            'RequestDate' => $request->RequestDate,
+            "ChildClientID" => "",
+            "BranchID" => ""
+
         );
 
         $dataJson = json_encode($data);
@@ -231,18 +251,24 @@ class PaymentBankController extends Controller
         $validation = self::createHash($dataJson);
 
         ## Req
-        $req = array("ClientGUID" => $clientGUID, "value" => $value, "Validation" => $validation, "Reference" => '', "swTestOperation" => false);
+        $req = array("ClientGUID" => $clientGUID, "value" => $value, "Validation" => $validation, "Reference" => "", "swTestOperation" => false);
         $jsonReq = json_encode($req);
+
 
         ## Send Post Req
         $gurl = BankUrisApi::URI_VALIDATE_P2P;
-        $gResult = json_decode(self::gPost($gurl, $jsonReq), true);
-        if ($gResult['status'] == 'OK') {
-            $response = self::decrypt($gResult['value'], $workingKey);
-            $response = json_decode($response, true);
-            return response()->json($response, 200);
-        } else {
-            return response()->json($gResult, 200);
+
+        try {
+            $gResult = json_decode(self::gPost($gurl, $jsonReq), true);
+            if ($gResult && $gResult['status'] == 'OK') {
+                $response = self::decrypt($gResult['value'], $workingKey);
+                $response = json_decode($response, true);
+                return response()->json(['data' => $response, 'status' => 200], 200);
+            } else {
+                return response()->json(['error' => 'Error en la petición', 'status' => 404], 404);
+            }
+        } catch (\Throwable $th) {
+            return response()->json(['error' => 'Error en la petición', 'status' => 404], 404);
         }
     }
 
@@ -268,7 +294,6 @@ class PaymentBankController extends Controller
         $clientGUID = env('BNC_CLIENT_GUID');
         $masterKey = env('BNC_SECRET_KEY');
 
-
         $tokenDecrypted = self::decrypt($token, $masterKey);
         $workingKey = json_decode($tokenDecrypted, true)['WorkingKey'];
 
@@ -290,13 +315,83 @@ class PaymentBankController extends Controller
         ## Send Post Req
         $gurl = BankUrisApi::URI_BANKLIST;
         $gResult = json_decode(self::gPost($gurl, $jsonReq), true);
-        if ($gResult['status'] == 'OK') {
+
+        if ($gResult && $gResult['status'] == 'OK') {
             $response = self::decrypt($gResult['value'], $workingKey);
             $response = json_decode($response, true);
             $banksWithP2P = array_filter($response, function ($bank) {
                 return strpos($bank['Services'], 'P2P') !== false;
             });
             return response()->json($banksWithP2P, 200);
+        } else {
+            return response()->json($gResult, 200);
+        }
+    }
+
+
+    /**
+     * Sends a P2P payment request.
+     *
+    //  * @param SendP2PRequest $request The request object containing payment details.
+     * @return JsonResponse The JSON response containing the result of the payment request.
+     *
+     * Valor Devuelto:
+     * ▪ Reference: String, referencia de la operación.
+     * ▪ AuthorizationCode: String, código autorizador de la operación.
+     * ▪ SwAlreadySent: Bool, indica si el pago, identificado con el OperationRef enviado,
+     *   se realizó anteriormente con éxito. En caso de ser un pago que ya se haya
+     *   realizado con éxito, devolverá true con el Reference y AuthorizationCode de la
+     *   operación, en caso contrario, devolverá false con el Reference y AuthorizationCode
+     *   de la operación actual.
+     */
+    public static function sendPay(Request $request): JsonResponse
+    {
+
+
+
+        $token = self::getToken();
+        if (!$token) {
+            return response()->json(['error' => 'Token not found'], 404);
+        }
+        $clientGUID = env('BNC_CLIENT_GUID');
+        $masterKey = env('BNC_SECRET_KEY');
+
+        $tokenDecrypted = self::decrypt($token, $masterKey);
+        $workingKey = json_decode($tokenDecrypted, true)['WorkingKey'];
+
+        ## Data
+        $data = array(
+            'AccountNumber' => env('Asad_Bnc_Account_Number'),
+            'ClientID' => env('Asad_Bnc_ClientID'),
+            'Amount' => $request->Amount,
+            'BeneficiaryBankCode' => $request->BeneficiaryBankCode,
+            'BeneficiaryCellPhone' => $request->BeneficiaryCellPhone,
+            'BeneficiaryID' => $request->BeneficiaryID,
+            'BeneficiaryName' => $request->BeneficiaryName,
+            'Description' => $request->Description,
+            'OperationRef' => $request->OperationRef,
+        );
+
+        $dataJson = json_encode($data);
+
+        ## Encriptado
+        $value = self::encrypt($dataJson, $workingKey);
+
+        ## Validation
+        $validation = self::createHash($dataJson);
+
+        ## Req
+        $req = array("ClientGUID" => $clientGUID, "value" => $value, "Validation" => $validation, "Reference" => '', "swTestOperation" => false);
+        $jsonReq = json_encode($req);
+
+        ## Send Post Req
+        $gurl = BankUrisApi::URI_SENDP2P;
+        $gResult = json_decode(self::gPost($gurl, $jsonReq), true);
+
+        if ($gResult['status'] && $gResult['status'] == 'OK') {
+            $response = self::decrypt($gResult['value'], $workingKey);
+            $response = json_decode($response, true);
+            return response()->json($response, 200);
         } else {
             return response()->json($gResult, 200);
         }

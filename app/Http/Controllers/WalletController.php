@@ -10,6 +10,7 @@ use App\UserTransaction;
 use Illuminate\Http\Request;
 use App\Events\CreditTransaction;
 use App\Events\RecargaUserWallet;
+use App\Events\RegisterAppLog;
 use App\Http\Requests\ValidateP2PRequest;
 use App\UserRecarga;
 use Carbon\Carbon;
@@ -171,23 +172,69 @@ class WalletController extends Controller
                     $evento =  event(new RecargaUserWallet($user->id, $request->Amount, $request->BankCode, $request->Reference));
                     DB::commit();
                     return response()->json([
-                        'message' => 'Solición de recarga enviada',
+                        'message' => 'Recarga realizada con exito',
                         'userBalance' => $user->wallet->creditos
                     ], 200);
                 } else {
+
+                    DB::rollBack();
+                    DB::transaction(function () use ($request, $user, $response_from_valdiate) {
+                        event(new RegisterAppLog(
+                            'recargas',
+                            "Error en " . __CLASS__ . "::" . __FUNCTION__ . " - " .
+                                $response_from_valdiate->content()  ?? 'Null',
+                            400,
+                            $request->Reference,
+                            $request->Amount,
+                            $request->BankCode,
+                            $request->PhoneNumber,
+                            $user->id,
+                            0
+                        ));
+                    });
+
                     return response()->json([
                         'message' => 'Error al validar la transaccion',
                         'error' => $response_from_valdiate->content(),
                     ], 400);
                 }
             } catch (\Throwable $th) {
+                dd('1');
+
                 DB::rollBack();
+
+                DB::transaction(function () use ($request, $user, $th) {
+                    event(new RegisterAppLog(
+                        'recargas',
+                        "Error en " . __CLASS__ . "::" . __FUNCTION__ . " - " . $th->getMessage() ?? 'Null',
+                        400,
+                        $request->Reference,
+                        $request->Amount,
+                        $request->BankCode,
+                        $request->PhoneNumber,
+                        $user->id,
+                        0
+                    ));
+                });
+
                 return response()->json([
                     'message' => 'Error al validar la transaccion en el servidor, contacte a soporte',
                     'error' => $th->getMessage(),
                 ], 400);
             }
         } else {
+
+            event(new RegisterAppLog(
+                'recargas',
+                "Error en " . __CLASS__ . "::" . __FUNCTION__ . " - " . 'Usuario no encontrado',
+                400,
+                $request->Reference,
+                $request->Amount,
+                $request->BankCode,
+                $request->PhoneNumber,
+                0,
+                0
+            ));
             return response()->json([
                 'message' => 'Error al validar la transaccion en el servidor, contacte a soporte',
             ]);

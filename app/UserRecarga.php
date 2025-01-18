@@ -11,9 +11,10 @@ class UserRecarga extends Model
         'banco',
         'referencia',
         'fecha',
+        'amount',
         'user_id',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     public function user()

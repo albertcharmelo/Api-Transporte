@@ -36,15 +36,13 @@ class SaveBankTransaction
             UserRecarga::create([
                 'banco' => $event->bankCode,
                 'referencia' => $event->reference,
+                'amount' => $event->amount,
                 'fecha' => now(),
                 'user_id' => $event->userId,
             ]);
 
             // Actualizar el saldo de la wallet del usuario
             $userWallet = UserWallet::where('user_id', $event->userId)->first();
-
-
-
             if ($userWallet) {
                 $userWallet->creditos += $event->amount;
                 $userWallet->save();

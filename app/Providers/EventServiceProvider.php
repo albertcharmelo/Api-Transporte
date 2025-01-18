@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Events\CreditTransaction;
 use App\Events\RecargaUserWallet;
+use App\Events\RegisterAppLog;
 use App\Listeners\SaveBankTransaction;
+use App\Listeners\SaveLogOnDB;
 use App\Listeners\TransactionDone;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -27,6 +29,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         RecargaUserWallet::class => [
             SaveBankTransaction::class
+        ],
+        RegisterAppLog::class => [
+            SaveLogOnDB::class
         ]
     ];
 

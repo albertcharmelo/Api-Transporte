@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\BankUrisApi;
 use App\BncToken;
+use App\Events\RegisterAppLog;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SendP2PRequest;
 use App\Http\Requests\ValidateP2PRequest;
@@ -238,8 +239,7 @@ class PaymentBankController extends Controller
             'PhoneNumber' => $request->PhoneNumber,
             'Reference' => $request->Reference,
             "ChildClientID" => "",
-            "BranchID" => ""
-
+            "BranchID" => "",
         );
 
         $dataJson = json_encode($data);
@@ -260,15 +260,20 @@ class PaymentBankController extends Controller
 
         try {
             $gResult = json_decode(self::gPost($gurl, $jsonReq), true);
+
             if ($gResult && $gResult['status'] == 'OK') {
                 $response = self::decrypt($gResult['value'], $workingKey);
                 $response = json_decode($response, true);
                 return response()->json(['data' => $response, 'status' => 200], 200);
             } else {
-                return response()->json(['error' => 'Error en la petición', 'status' => 404, 'api_response' => $gResult], 404);
+
+                return response()->json(['error' => 'Error procedente del la entidad bancaria', 'status' => 500, 'api_response' => $gResult], 500);
             }
         } catch (\Throwable $th) {
-            return response()->json(['error' => 'Error en la petición', 'status' => 404], 404);
+            return response()->json([
+                'error' => 'Error procedente del la entidad bancaria',
+                'status' => 500,
+            ], 404);
         }
     }
 

@@ -8,6 +8,7 @@ use App\Events\RegisterAppLog;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SendP2PRequest;
 use App\Http\Requests\ValidateP2PRequest;
+use App\Liquidacion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -349,11 +350,8 @@ class PaymentBankController extends Controller
      *   operación, en caso contrario, devolverá false con el Reference y AuthorizationCode
      *   de la operación actual.
      */
-    public static function sendPay(Request $request): JsonResponse
+    public static function sendPay(SendP2PRequest $request): JsonResponse
     {
-
-
-
         $token = self::getToken();
         if (!$token) {
             return response()->json(['error' => 'Token not found'], 404);
@@ -393,10 +391,12 @@ class PaymentBankController extends Controller
         $gurl = BankUrisApi::URI_SENDP2P;
         $gResult = json_decode(self::gPost($gurl, $jsonReq), true);
 
-        if ($gResult['status'] && $gResult['status'] == 'OK') {
+        if ($gResult && $gResult['status'] && $gResult['status'] == 'OK') {
             $response = self::decrypt($gResult['value'], $workingKey);
+
+
             $response = json_decode($response, true);
-            return response()->json($response, 200);
+            return response()->json(['bank_response' => $response], 200);
         } else {
             return response()->json($gResult, 200);
         }

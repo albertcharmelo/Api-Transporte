@@ -172,10 +172,19 @@ class WalletController extends Controller
                     $evento =  event(new RecargaUserWallet($user->id, $request->Amount, $request->BankCode, $request->Reference));
                     DB::commit();
                     return response()->json([
-                        'message' => 'Recarga realizada con exito',
+                        'message' => 'Recarga realizada con éxito',
                         'userBalance' => $user->wallet->creditos
                     ], 200);
-                } else {
+                }
+
+                if ($response_from_valdiate->getStatusCode() == 404) {
+                    return response()->json([
+                        'message' => 'No se encontró el movimiento',
+                        'error' => $response_from_valdiate->content(),
+                    ], 404);
+                }
+
+                if ($response_from_valdiate->getStatusCode() != 200 && $response_from_valdiate->getStatusCode() != 404) {
 
                     DB::rollBack();
                     DB::transaction(function () use ($request, $user, $response_from_valdiate) {
@@ -194,15 +203,13 @@ class WalletController extends Controller
                     });
 
                     return response()->json([
-                        'message' => 'Error al validar la transaccion',
+                        'message' => 'Error al validar la transacción',
                         'error' => $response_from_valdiate->content(),
                     ], 400);
                 }
             } catch (\Throwable $th) {
 
-
                 DB::rollBack();
-
                 DB::transaction(function () use ($request, $user, $th) {
                     event(new RegisterAppLog(
                         'recargas',
@@ -218,7 +225,7 @@ class WalletController extends Controller
                 });
 
                 return response()->json([
-                    'message' => 'Error al validar la transaccion en el servidor, contacte a soporte',
+                    'message' => 'Error al validar la transacción en el servidor, contacte a soporte',
                     'error' => $th->getMessage(),
                 ], 400);
             }
@@ -236,7 +243,7 @@ class WalletController extends Controller
                 0
             ));
             return response()->json([
-                'message' => 'Error al validar la transaccion en el servidor, contacte a soporte',
+                'message' => 'Error al validar la transacción en el servidor, contacte a soporte',
             ]);
         }
     }

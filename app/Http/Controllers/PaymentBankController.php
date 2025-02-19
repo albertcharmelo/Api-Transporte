@@ -286,8 +286,10 @@ class PaymentBankController extends Controller
             if ($gResult && $gResult['status'] == 'OK') {
                 $response = self::decrypt($gResult['value'], $workingKey);
                 $response = json_decode($response, true);
-                dd($response, $data);
-                return response()->json(['data' => $response, 'status' => 200], 200);
+                if ($response['MovementExists'] === true) {
+                    return response()->json(['data' => $response, 'status' => 200], 200);
+                }
+                return response()->json(['error' => 'No se encontró el movimiento', 'status' => 404], 404);
             } else {
                 return response()->json(['error' => 'Error procedente del la entidad bancaria', 'status' => 500, 'api_response' => $gResult, 'data' => $data], 500);
             }
@@ -411,7 +413,7 @@ class PaymentBankController extends Controller
         ## Send Post Req
         $gurl = BankUrisApi::URI_SENDP2P;
         $gResult = json_decode(self::gPost($gurl, $jsonReq), true);
-        dd($gResult);
+
         if ($gResult && $gResult['status'] && $gResult['status'] == 'OK') {
             $response = self::decrypt($gResult['value'], $workingKey);
             $response = json_decode($response, true);

@@ -25,9 +25,9 @@ class ValidateP2PRequest extends FormRequest
     {
         return [
             'Amount' => 'required|numeric|regex:/^\d{1,11}(\.\d{1,2})?$/', //ejemplo 100.00
-            'BankCode' => 'required|string|max:3', //. Ejemplo: 191
+            'BankCode' => 'required|string|max:4', //. Ejemplo: 191
             'PhoneNumber' => 'required|string|regex:/^58\d{10}$/', // Ejemplo: 584249999999
-            'Reference' => 'required|integer',
+            'Reference' => 'required|string',
         ];
     }
 }

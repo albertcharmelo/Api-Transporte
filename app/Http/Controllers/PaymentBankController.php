@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AppLog;
 use App\BankUrisApi;
 use App\BncToken;
 use App\Events\RegisterAppLog;
@@ -111,6 +112,7 @@ class PaymentBankController extends Controller
     public static function authenticate(): JsonResponse
     {
         $masterKey = env('BNC_SECRET_KEY');
+
         $clientGUID = env('BNC_CLIENT_GUID');
 
         $clientValue = '{"ClientGUID":"' . $clientGUID . '"}';
@@ -123,9 +125,16 @@ class PaymentBankController extends Controller
         $req = array("ClientGUID" => $clientGUID, "value" => $value, "Validation" => $validation, "Reference" => '', "swTestOperation" => false);
         $jsonReq = json_encode($req);
 
-        ## Send Post Req
+
+        ## Send Post Req    
         $gurl = BankUrisApi::URI_AUTH;
+
         $gResult = json_decode(self::gPost($gurl, $jsonReq), true);
+
+        if (!$gResult) {
+            //Error del Banco
+            return response()->json(['error' => 'Error procedente del la entidad bancaria', 'status' => 500, $gResult], 500);
+        }
 
         ## Se guarda en la DB para futuras consultas
         $token = BncToken::create([
@@ -193,7 +202,14 @@ class PaymentBankController extends Controller
         ## Send Post Req
         $gurl = BankUrisApi::URI_HISTORY;
         $gResult = json_decode(self::gPost($gurl, $jsonReq), true);
-        return response()->json($gResult, 200);
+
+        if ($gResult && $gResult['status'] == 'OK') {
+            $response = self::decrypt($gResult['value'], $workingKey);
+            $response = json_decode($response, true);
+            return response()->json($response, 200);
+        } else {
+            return response()->json($gResult, 200);
+        }
     }
 
 
@@ -231,17 +247,22 @@ class PaymentBankController extends Controller
         $workingKey = json_decode($tokenDecrypted, true)['WorkingKey'];
 
 
-        ## Data
+        ## Data 
+
         $data = array(
             'AccountNumber' => env('Asad_Bnc_Account_Number'),
             'ClientID' => env('Asad_Bnc_ClientID'),
-            'Amount' => number_format($request->Amount, 2, ',', ' '),
+            'Amount' => (float)number_format($request->Amount, 2, ',', ' '),
             'BankCode' => $request->BankCode,
             'PhoneNumber' => $request->PhoneNumber,
             'Reference' => $request->Reference,
+            "RequestDate" => "2025-02-11T00:00:00",
             "ChildClientID" => "",
             "BranchID" => "",
         );
+
+
+
 
         $dataJson = json_encode($data);
 
@@ -265,10 +286,10 @@ class PaymentBankController extends Controller
             if ($gResult && $gResult['status'] == 'OK') {
                 $response = self::decrypt($gResult['value'], $workingKey);
                 $response = json_decode($response, true);
+                dd($response, $data);
                 return response()->json(['data' => $response, 'status' => 200], 200);
             } else {
-
-                return response()->json(['error' => 'Error procedente del la entidad bancaria', 'status' => 500, 'api_response' => $gResult], 500);
+                return response()->json(['error' => 'Error procedente del la entidad bancaria', 'status' => 500, 'api_response' => $gResult, 'data' => $data], 500);
             }
         } catch (\Throwable $th) {
             return response()->json([
@@ -366,7 +387,7 @@ class PaymentBankController extends Controller
         $data = array(
             'AccountNumber' => env('Asad_Bnc_Account_Number'),
             'ClientID' => env('Asad_Bnc_ClientID'),
-            'Amount' => $request->Amount,
+            'Amount' => (float)$request->Amount,
             'BeneficiaryBankCode' => $request->BeneficiaryBankCode,
             'BeneficiaryCellPhone' => $request->BeneficiaryCellPhone,
             'BeneficiaryID' => $request->BeneficiaryID,
@@ -390,11 +411,9 @@ class PaymentBankController extends Controller
         ## Send Post Req
         $gurl = BankUrisApi::URI_SENDP2P;
         $gResult = json_decode(self::gPost($gurl, $jsonReq), true);
-
+        dd($gResult);
         if ($gResult && $gResult['status'] && $gResult['status'] == 'OK') {
             $response = self::decrypt($gResult['value'], $workingKey);
-
-
             $response = json_decode($response, true);
             return response()->json(['bank_response' => $response], 200);
         } else {

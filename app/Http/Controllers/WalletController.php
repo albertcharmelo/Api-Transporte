@@ -157,11 +157,11 @@ class WalletController extends Controller
         $user = Auth::user();
 
         if ($user) {
-            if (WalletController::validateIfExistReference($request->Reference)) {
-                return response()->json([
-                    'message' => 'El pago ha sido registrado anteriormente',
-                ], 400);
-            }
+            // if (WalletController::validateIfExistReference($request->Reference)) {
+            //     return response()->json([
+            //         'message' => 'El pago ha sido registrado anteriormente',
+            //     ], 400);
+            // }
 
             DB::beginTransaction();
             try {
@@ -199,7 +199,7 @@ class WalletController extends Controller
                     ], 400);
                 }
             } catch (\Throwable $th) {
-                dd('1');
+
 
                 DB::rollBack();
 

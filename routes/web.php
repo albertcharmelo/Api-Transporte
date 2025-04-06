@@ -5,7 +5,10 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes(['register' => false]);
 
-
+// Terminos y Condiciones
+Route::get('/terminos', function () {
+    return view('terminos');
+})->name('terminos');
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/', 'HomeController@index');

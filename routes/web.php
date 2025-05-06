@@ -10,6 +10,10 @@ Route::get('/terminos', function () {
     return view('terminos');
 })->name('terminos');
 
+Route::get('/policy', function () {
+    return view('policy');
+})->name('policy');
+
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/', 'HomeController@index');
 

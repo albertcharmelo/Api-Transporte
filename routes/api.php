@@ -27,6 +27,7 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('updateLocation', 'UserLocationController@updateLocation');
         Route::post('getLocation', 'UserLocationController@getLocation');
         Route::post('createSolicitudChofer', 'panel\ChoferesController@createSolcitudChofer');
+        Route::post('delete', 'AuthController@deleteAccount');
     });
 });
 

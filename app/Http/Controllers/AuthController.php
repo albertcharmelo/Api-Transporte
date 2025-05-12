@@ -90,6 +90,14 @@ class AuthController extends Controller
             ], 401);
 
         $user = $request->user();
+
+        if ($user->trashed()) {
+            Auth::logout();
+            return response()->json([
+                'message' => 'Usuario eliminado. No puede iniciar sesión.'
+            ], 403);
+        }
+
         $tokenResult = $user->createToken('Personal Access Token');
 
         $token = $tokenResult->token;
@@ -209,6 +217,30 @@ class AuthController extends Controller
         $user = User::find(Auth::user()->id);
         return response()->json([
             'token_notification' => $user->token_notification
+        ], 200);
+    }
+
+    /**
+     * Eliminar (soft delete) cuenta del usuario autenticado
+     */
+    public function deleteAccount(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'No se encontró el usuario autenticado'
+            ], 404);
+        }
+
+        // Anula el token antes de eliminar
+        $request->user()->token()->revoke();
+
+        // Soft delete
+        $request->user()->delete();
+
+        return response()->json([
+            'message' => 'Cuenta eliminada correctamente'
         ], 200);
     }
 }

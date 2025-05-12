@@ -7,12 +7,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str; // Importar la clase Str
 class User extends Authenticatable
 {
     use Notifiable;
     use HasApiTokens;
     use CanResetPassword;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -20,7 +22,15 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'full_name', 'email', 'password', 'gender', 'id_card', 'profile_image', 'type_id_card', 'idShow', 'token_notification'
+        'full_name',
+        'email',
+        'password',
+        'gender',
+        'id_card',
+        'profile_image',
+        'type_id_card',
+        'idShow',
+        'token_notification'
     ];
     protected $with = ['location'];
 
@@ -30,7 +40,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
+        'remember_token',
     ];
 
     /**

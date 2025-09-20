@@ -30,4 +30,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // Banco de Venezuela (BDV)
+    'bdv' => [
+        'base_url' => env('BDV_BASE_URL'),
+        'api_key'  => env('BDV_API_KEY'),
+        'timeout'  => env('BDV_TIMEOUT', 15),
+    ],
+
 ];

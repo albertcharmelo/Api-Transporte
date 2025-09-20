@@ -688,6 +688,8 @@ class ComposerStaticInit51a11203b47d1cb1927f7cbe018e8900
 
     public static $classMap = array (
         'AdminUserSeeder' => __DIR__ . '/../..' . '/database/seeds/AdminUserSeeder.php',
+        'App\\AppLog' => __DIR__ . '/../..' . '/app/AppLog.php',
+        'App\\BankReference' => __DIR__ . '/../..' . '/app/BankReference.php',
         'App\\BankUrisApi' => __DIR__ . '/../..' . '/app/BankUrisApi.php',
         'App\\BncToken' => __DIR__ . '/../..' . '/app/BncToken.php',
         'App\\Console\\Commands\\BuscarReferencias' => __DIR__ . '/../..' . '/app/Console/Commands/BuscarReferencias.php',
@@ -696,6 +698,7 @@ class ComposerStaticInit51a11203b47d1cb1927f7cbe018e8900
         'App\\DatosChofer' => __DIR__ . '/../..' . '/app/DatosChofer.php',
         'App\\Events\\CreditTransaction' => __DIR__ . '/../..' . '/app/Events/CreditTransaction.php',
         'App\\Events\\RecargaUserWallet' => __DIR__ . '/../..' . '/app/Events/RecargaUserWallet.php',
+        'App\\Events\\RegisterAppLog' => __DIR__ . '/../..' . '/app/Events/RegisterAppLog.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Exports\\LiquidacionesExport' => __DIR__ . '/../..' . '/app/Exports/LiquidacionesExport.php',
         'App\\Http\\Controllers\\AuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/AuthController.php',
@@ -732,6 +735,7 @@ class ComposerStaticInit51a11203b47d1cb1927f7cbe018e8900
         'App\\Imports\\RecargasImport' => __DIR__ . '/../..' . '/app/Imports/RecargasImport.php',
         'App\\Liquidacion' => __DIR__ . '/../..' . '/app/Liquidacion.php',
         'App\\Listeners\\SaveBankTransaction' => __DIR__ . '/../..' . '/app/Listeners/SaveBankTransaction.php',
+        'App\\Listeners\\SaveLogOnDB' => __DIR__ . '/../..' . '/app/Listeners/SaveLogOnDB.php',
         'App\\Listeners\\TransactionDone' => __DIR__ . '/../..' . '/app/Listeners/TransactionDone.php',
         'App\\Mail\\LiquidacionMail' => __DIR__ . '/../..' . '/app/Mail/LiquidacionMail.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',

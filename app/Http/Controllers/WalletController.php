@@ -154,8 +154,8 @@ class WalletController extends Controller
 
     public static function recargar(ValidateP2PRequest $request)
     {
-        $user = Auth::user();
 
+        $user = Auth::user();
         if ($user) {
             // if (WalletController::validateIfExistReference($request->Reference)) {
             //     return response()->json([

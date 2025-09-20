@@ -12,9 +12,15 @@ use App\Http\Requests\ValidateP2PRequest;
 use App\Liquidacion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\Rule;
 
 class PaymentBankController extends Controller
 {
+    /** Lista blanca de bancos permitidos para BDV (bancoOrigen). */
+    private const BDV_BANK_CODES = [
+        '0102','0104','0105','0108','0114','0115','0128','0134','0137','0138','0146','0151','0156','0157','0163','0168','0169','0171','0172','0173','0174','0175','0177','0178','0191'
+    ];
 
 
     public static function getToken(): string
@@ -29,8 +35,7 @@ class PaymentBankController extends Controller
         }
     }
 
-    public static
-    function refere()
+    public static function refere()
     {
         //20220831090831
         $fecha = date('Y-m-d h:i:s', time());
@@ -59,6 +64,203 @@ class PaymentBankController extends Controller
         ## Usamos dd para debuggear
         // dd($result);
         return $result;
+    }
+    /**
+     * =============================================================
+     *  SECCION: BNC (Banco Nacional de Crédito)
+     *  Nota: Las funciones existentes en este bloque manejan cifrado,
+     *  obtención de token y operaciones específicas del BNC (URIs en
+     *  App\BankUrisApi). Mantener esta sección separada de otros bancos.
+     * =============================================================
+     */
+
+    /**
+     * =============================================================
+     *  SECCION: Banco de Venezuela (BDV)
+     *  Fuente de documentación: docs/venezuela/doc_api.md
+     *  Características:
+     *    - API REST con API Key vía header X-API-Key
+     *    - Endpoint principal de conciliación: /getMovement/v2
+     *    - Validaciones previas en formato y tipos (fecha, importe)
+     *  Configuración en config/services.php: services['bdv']
+     * =============================================================
+     */
+
+    /**
+     * Conciliación de movimiento Pago Móvil – BDV v2
+     * POST {base_url}/getMovement/v2
+     * Headers: X-API-Key, Content-Type: application/json
+     * Body: ver reglas en docs/venezuela/doc_api.md
+     */
+    public static function bdvConciliarMovimientoV2(Request $request): JsonResponse
+    {
+        // Validación de entrada según guía oficial (mensajes simples)
+    $validated = $request->validate(
+            [
+                'cedulaPagador'   => ['required', 'string'],
+                'telefonoPagador' => ['required', 'string'],
+                'telefonoDestino' => ['required', 'string'],
+                'referencia'      => ['required', 'string'],
+                'fechaPago'       => ['required', 'date_format:Y-m-d'],
+                'importe'         => ['required', 'regex:/^\d+\.\d{2}$/'],
+        'bancoOrigen'     => ['required', 'string', Rule::in(self::BDV_BANK_CODES)],
+                'reqCed'          => ['required', 'boolean'],
+            ]
+        );
+
+        $baseUrl = rtrim((string) config('services.bdv.base_url'), '/');
+        $apiKey  = (string) config('services.bdv.api_key');
+        $timeout = (int) (config('services.bdv.timeout') ?? 15);
+
+        if (!$baseUrl || !$apiKey) {
+            return response()->json([
+                'code' => 500,
+                'message' => 'Falta configuración del Banco de Venezuela (services.bdv) para realizar la conciliación.',
+                'data' => null,
+                'status' => 500,
+            ], 500);
+        }
+
+        $endpoint = $baseUrl . '/getMovement/v2';
+
+        try {
+            $httpResponse = Http::timeout($timeout)
+                ->withHeaders([
+                    'X-API-Key' => $apiKey,
+                    'Content-Type' => 'application/json',
+                ])
+                ->post($endpoint, $validated);
+
+            $payload = $httpResponse->json();
+
+            // Si la API de BDV devuelve HTTP distinto de 200, propagamos ese status
+            if (!$httpResponse->ok()) {
+                return response()->json([
+                    'code' => $httpResponse->status(),
+                    'message' => 'Error HTTP desde BDV',
+                    'data' => $payload,
+                    'status' => $httpResponse->status(),
+                ], $httpResponse->status());
+            }
+
+            // Normalización de respuesta según doc: code, message, data{status,amount,reason}, status
+            // Éxito de negocio: code === 1000 y data.status === "1000"
+            $isBusinessOk = isset($payload['code']) && (int) $payload['code'] === 1000
+                && isset($payload['data']['status']) && (string) $payload['data']['status'] === '1000';
+
+            // Devolvemos 200 siempre (como el servicio) pero incluimos la semántica de éxito
+            return response()->json([
+                'code' => $payload['code'] ?? 0,
+                'message' => $payload['message'] ?? 'Sin mensaje',
+                'data' => $payload['data'] ?? null,
+                'status' => $payload['status'] ?? 200,
+                'success' => $isBusinessOk,
+            ], 200);
+        } catch (\Throwable $th) {
+            // Log de app para auditoría
+            event(new RegisterAppLog(
+                'bdv',
+                'Error en ' . __CLASS__ . '::' . __FUNCTION__ . ' - ' . ($th->getMessage() ?? 'Null'),
+                500,
+                $validated['referencia'] ?? ($request->input('referencia') ?? ''),
+                (float) ($validated['importe'] ?? 0),
+                $validated['bancoOrigen'] ?? ($request->input('bancoOrigen') ?? ''),
+                $validated['telefonoPagador'] ?? ($request->input('telefonoPagador') ?? ''),
+                auth()->id() ?? 0,
+                0
+            ));
+
+            return response()->json([
+                'code' => 500,
+                'message' => 'Excepción al consultar BDV',
+                'error' => $th->getMessage(),
+                'status' => 500,
+            ], 500);
+        }
+    }
+
+    /**
+     * (Opcional) Conciliación legacy sin /v2
+     */
+    public static function bdvConciliarMovimientoLegacy(Request $request): JsonResponse
+    {
+    $validated = $request->validate(
+            [
+                'cedulaPagador'   => ['required', 'string'],
+                'telefonoPagador' => ['required', 'string'],
+                'telefonoDestino' => ['required', 'string'],
+                'referencia'      => ['required', 'string'],
+                'fechaPago'       => ['required', 'date_format:Y-m-d'],
+                'importe'         => ['required', 'regex:/^\d+\.\d{2}$/'],
+        'bancoOrigen'     => ['required', 'string', Rule::in(self::BDV_BANK_CODES)],
+                'reqCed'          => ['required', 'boolean'],
+            ]
+        );
+
+        $baseUrl = rtrim((string) config('services.bdv.base_url'), '/');
+        $apiKey  = (string) config('services.bdv.api_key');
+        $timeout = (int) (config('services.bdv.timeout') ?? 15);
+
+        if (!$baseUrl || !$apiKey) {
+            return response()->json([
+                'code' => 500,
+                'message' => 'Falta configuración del Banco de Venezuela (services.bdv).',
+                'data' => null,
+                'status' => 500,
+            ], 500);
+        }
+
+        $endpoint = $baseUrl . '/getMovement';
+
+        try {
+            $httpResponse = Http::timeout($timeout)
+                ->withHeaders([
+                    'X-API-Key' => $apiKey,
+                    'Content-Type' => 'application/json',
+                ])
+                ->post($endpoint, $validated);
+
+            $payload = $httpResponse->json();
+
+            if (!$httpResponse->ok()) {
+                return response()->json([
+                    'code' => $httpResponse->status(),
+                    'message' => 'Error HTTP desde BDV (legacy)',
+                    'data' => $payload,
+                    'status' => $httpResponse->status(),
+                ], $httpResponse->status());
+            }
+
+            $isBusinessOk = isset($payload['code']) && (int) $payload['code'] === 1000
+                && isset($payload['data']['status']) && (string) $payload['data']['status'] === '1000';
+
+            return response()->json([
+                'code' => $payload['code'] ?? 0,
+                'message' => $payload['message'] ?? 'Sin mensaje',
+                'data' => $payload['data'] ?? null,
+                'status' => $payload['status'] ?? 200,
+                'success' => $isBusinessOk,
+            ], 200);
+        } catch (\Throwable $th) {
+            event(new RegisterAppLog(
+                'bdv',
+                'Error en ' . __CLASS__ . '::' . __FUNCTION__ . ' - ' . ($th->getMessage() ?? 'Null'),
+                500,
+                $validated['referencia'] ?? ($request->input('referencia') ?? ''),
+                (float) ($validated['importe'] ?? 0),
+                $validated['bancoOrigen'] ?? ($request->input('bancoOrigen') ?? ''),
+                $validated['telefonoPagador'] ?? ($request->input('telefonoPagador') ?? ''),
+                auth()->id() ?? 0,
+                0
+            ));
+
+            return response()->json([
+                'code' => 500,
+                'message' => 'Excepción al consultar BDV (legacy)',
+                'error' => $th->getMessage(),
+                'status' => 500,
+            ], 500);
+        }
     }
 
     public static function encrypt($data, $Masterkey)

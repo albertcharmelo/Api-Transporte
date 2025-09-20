@@ -7,6 +7,8 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'AdminUserSeeder' => $baseDir . '/database/seeds/AdminUserSeeder.php',
+    'App\\AppLog' => $baseDir . '/app/AppLog.php',
+    'App\\BankReference' => $baseDir . '/app/BankReference.php',
     'App\\BankUrisApi' => $baseDir . '/app/BankUrisApi.php',
     'App\\BncToken' => $baseDir . '/app/BncToken.php',
     'App\\Console\\Commands\\BuscarReferencias' => $baseDir . '/app/Console/Commands/BuscarReferencias.php',
@@ -15,6 +17,7 @@ return array(
     'App\\DatosChofer' => $baseDir . '/app/DatosChofer.php',
     'App\\Events\\CreditTransaction' => $baseDir . '/app/Events/CreditTransaction.php',
     'App\\Events\\RecargaUserWallet' => $baseDir . '/app/Events/RecargaUserWallet.php',
+    'App\\Events\\RegisterAppLog' => $baseDir . '/app/Events/RegisterAppLog.php',
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
     'App\\Exports\\LiquidacionesExport' => $baseDir . '/app/Exports/LiquidacionesExport.php',
     'App\\Http\\Controllers\\AuthController' => $baseDir . '/app/Http/Controllers/AuthController.php',
@@ -51,6 +54,7 @@ return array(
     'App\\Imports\\RecargasImport' => $baseDir . '/app/Imports/RecargasImport.php',
     'App\\Liquidacion' => $baseDir . '/app/Liquidacion.php',
     'App\\Listeners\\SaveBankTransaction' => $baseDir . '/app/Listeners/SaveBankTransaction.php',
+    'App\\Listeners\\SaveLogOnDB' => $baseDir . '/app/Listeners/SaveLogOnDB.php',
     'App\\Listeners\\TransactionDone' => $baseDir . '/app/Listeners/TransactionDone.php',
     'App\\Mail\\LiquidacionMail' => $baseDir . '/app/Mail/LiquidacionMail.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',

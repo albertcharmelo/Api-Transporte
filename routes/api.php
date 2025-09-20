@@ -46,11 +46,21 @@ Route::group(['prefix' => 'walltet', 'middleware' => 'auth:api'], function () {
 });
 
 Route::group(['prefix' => 'bank'], function () {
+    // ===============================
+    // Sección BNC (existente)
+    // ===============================
     Route::post('consultar', 'PaymentBankController@consultar');
     Route::post('historial', 'PaymentBankController@historial');
     Route::post('banklist', 'PaymentBankController@banks');
     Route::post('payp2p', 'PaymentBankController@sendPay');
     Route::post('payp2pconfirm', 'PaymentBankController@ValidateP2P');
+
+    // ===============================
+    // Sección Banco de Venezuela (nuevo)
+    // Doc: docs/venezuela/doc_api.md
+    // ===============================
+    Route::post('bdv/conciliar/v2', 'PaymentBankController@bdvConciliarMovimientoV2');
+    Route::post('bdv/conciliar/legacy', 'PaymentBankController@bdvConciliarMovimientoLegacy');
 });
 
 /***************************/

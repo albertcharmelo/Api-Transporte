@@ -158,7 +158,7 @@ class PaymentBankController extends Controller
         );
 
         $baseUrl = rtrim((string) config('services.bdv.base_url'), '/');
-        $apiKey  = (string) config('services.bdv.api_key');
+        $apiKey  = (string) "96R7T1T5J2134T5YFC2GF15SDFG4BD1Z";
         $timeout = (int) (config('services.bdv.timeout') ?? 15);
 
         if (!$baseUrl || !$apiKey) {

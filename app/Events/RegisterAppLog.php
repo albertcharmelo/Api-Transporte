@@ -32,7 +32,7 @@ class RegisterAppLog
 
 
     public function __construct(
-        String $type,
+        String $type = 'recargas',
         String $description,
         Int $httCode,
         String $reference,

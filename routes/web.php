@@ -14,6 +14,14 @@ Route::get('/policy', function () {
     return view('policy');
 })->name('policy');
 
+// Ruta pública para probar conciliación BDV v2
+Route::get('/prueba-venezuela', function () {
+    return view('pruebaVenezuela');
+})->name('bdv.prueba');
+
+// Endpoint público que consume el método del controlador
+Route::post('/bdv/conciliar', 'PaymentBankController@bdvConciliarMovimientoV2')->name('bdv.conciliar');
+
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/', 'HomeController@index');
 

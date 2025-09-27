@@ -19,7 +19,31 @@ class PaymentBankController extends Controller
 {
     /** Lista blanca de bancos permitidos para BDV (bancoOrigen). */
     private const BDV_BANK_CODES = [
-        '0102','0104','0105','0108','0114','0115','0128','0134','0137','0138','0146','0151','0156','0157','0163','0168','0169','0171','0172','0173','0174','0175','0177','0178','0191'
+        '0102',
+        '0104',
+        '0105',
+        '0108',
+        '0114',
+        '0115',
+        '0128',
+        '0134',
+        '0137',
+        '0138',
+        '0146',
+        '0151',
+        '0156',
+        '0157',
+        '0163',
+        '0168',
+        '0169',
+        '0171',
+        '0172',
+        '0173',
+        '0174',
+        '0175',
+        '0177',
+        '0178',
+        '0191'
     ];
 
 
@@ -74,6 +98,31 @@ class PaymentBankController extends Controller
      * =============================================================
      */
 
+
+
+    /**
+     * Validate a P2P (peer-to-peer) payment request.
+     *
+     * @param ValidateP2PRequest $request The request object containing the P2P payment details.
+     * @return JsonResponse The JSON response containing the result of the validation.
+     *
+     * Valor Devuelto:
+     * - Amount: Decimal, monto de la transacción.
+     * - BalanceDelta: String, indica si es un ingreso o egreso.
+     * - Code: String, código de operación.
+     * - ControlNumber: String, número de control de la transacción.
+     * - Date: fecha del movimiento en formato dd/MM/yyyy.
+     * - MovementExists: Bool, este campo indica si existe o no el movimiento.
+     * - ReferenceA: String, referencia 1.
+     * - ReferenceB: String, referencia 2. Este campo puede no tener valor, depende del tipo de movimiento.
+     * - ReferenceC: String, referencia 3. Este campo puede no tener valor, depende del tipo de movimiento.
+     * - ReferenceD: String, referencia 4. Este campo puede no tener valor, depende del tipo de movimiento.
+     * - Type: String, tipo de movimiento.
+     */
+
+
+
+
     /**
      * =============================================================
      *  SECCION: Banco de Venezuela (BDV)
@@ -95,7 +144,7 @@ class PaymentBankController extends Controller
     public static function bdvConciliarMovimientoV2(Request $request): JsonResponse
     {
         // Validación de entrada según guía oficial (mensajes simples)
-    $validated = $request->validate(
+        $validated = $request->validate(
             [
                 'cedulaPagador'   => ['required', 'string'],
                 'telefonoPagador' => ['required', 'string'],
@@ -103,7 +152,7 @@ class PaymentBankController extends Controller
                 'referencia'      => ['required', 'string'],
                 'fechaPago'       => ['required', 'date_format:Y-m-d'],
                 'importe'         => ['required', 'regex:/^\d+\.\d{2}$/'],
-        'bancoOrigen'     => ['required', 'string', Rule::in(self::BDV_BANK_CODES)],
+                'bancoOrigen'     => ['required', 'string', Rule::in(self::BDV_BANK_CODES)],
                 'reqCed'          => ['required', 'boolean'],
             ]
         );
@@ -184,7 +233,7 @@ class PaymentBankController extends Controller
      */
     public static function bdvConciliarMovimientoLegacy(Request $request): JsonResponse
     {
-    $validated = $request->validate(
+        $validated = $request->validate(
             [
                 'cedulaPagador'   => ['required', 'string'],
                 'telefonoPagador' => ['required', 'string'],
@@ -192,7 +241,7 @@ class PaymentBankController extends Controller
                 'referencia'      => ['required', 'string'],
                 'fechaPago'       => ['required', 'date_format:Y-m-d'],
                 'importe'         => ['required', 'regex:/^\d+\.\d{2}$/'],
-        'bancoOrigen'     => ['required', 'string', Rule::in(self::BDV_BANK_CODES)],
+                'bancoOrigen'     => ['required', 'string', Rule::in(self::BDV_BANK_CODES)],
                 'reqCed'          => ['required', 'boolean'],
             ]
         );

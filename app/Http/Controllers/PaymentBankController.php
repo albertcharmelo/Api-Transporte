@@ -170,7 +170,7 @@ class PaymentBankController extends Controller
             ], 500);
         }
 
-        $endpoint = $baseUrl . '/getMovement/v2';
+        $endpoint = $baseUrl . '/getMovement';
 
         try {
             $httpResponse = Http::timeout($timeout)

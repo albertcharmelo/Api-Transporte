@@ -207,17 +207,17 @@ class PaymentBankController extends Controller
             ], 200);
         } catch (\Throwable $th) {
             // Log de app para auditoría
-            event(new RegisterAppLog(
-                'bdv',
-                'Error en ' . __CLASS__ . '::' . __FUNCTION__ . ' - ' . ($th->getMessage() ?? 'Null'),
-                500,
-                $validated['referencia'] ?? ($request->input('referencia') ?? ''),
-                (float) ($validated['importe'] ?? 0),
-                $validated['bancoOrigen'] ?? ($request->input('bancoOrigen') ?? ''),
-                $validated['telefonoPagador'] ?? ($request->input('telefonoPagador') ?? ''),
-                auth()->id() ?? 0,
-                0
-            ));
+            // event(new RegisterAppLog(
+            //     'bdv',
+            //     'Error en ' . __CLASS__ . '::' . __FUNCTION__ . ' - ' . ($th->getMessage() ?? 'Null'),
+            //     500,
+            //     $validated['referencia'] ?? ($request->input('referencia') ?? ''),
+            //     (float) ($validated['importe'] ?? 0),
+            //     $validated['bancoOrigen'] ?? ($request->input('bancoOrigen') ?? ''),
+            //     $validated['telefonoPagador'] ?? ($request->input('telefonoPagador') ?? ''),
+            //     auth()->id() ?? 0,
+            //     0
+            // ));
 
             return response()->json([
                 'code' => 500,
